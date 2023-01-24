@@ -3,6 +3,7 @@
 
 # locally pip-installed code
 fiweps*
+config/GIS*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
