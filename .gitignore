@@ -1,4 +1,8 @@
 *DS_Store
+.vscode
+
+# locally pip-installed code
+fiweps*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

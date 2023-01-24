@@ -1,0 +1,26 @@
+name: dyndown
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python
+  - cartopy
+  - gdal
+  - wrf-python
+  - python-cdo
+  - geopandas
+  - rioxarray
+  - ipywidgets
+  - jupyterlab
+  - pylint
+  - pytest
+  - requests
+  - seaborn
+  - siphon
+  - wget
+  - dask
+  - flake8
+  - pip
+  - pip:
+    - "--editable git@github.com:AlaskaFireWeather/fiweps.git"
+  
