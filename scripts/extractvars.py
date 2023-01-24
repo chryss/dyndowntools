@@ -1,4 +1,4 @@
-o#!/usr/bin/env python
+#!/usr/bin/env python
 # 
 # Extract variables from wrfout file
 
