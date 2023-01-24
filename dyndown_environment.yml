@@ -12,6 +12,7 @@ dependencies:
   - rioxarray
   - ipywidgets
   - jupyterlab
+  - nb-clean
   - pylint
   - pytest
   - requests
