@@ -12,9 +12,8 @@ import urllib.request, urllib.parse
 import http.cookiejar
 from dotenv import load_dotenv
 from multiprocessing import Pool
-from multiprocessing.pool import ThreadPool
 
-NUMPROC = 10
+NUMPROC = 20
 OUTPATH = Path("../../working/")
 LOGINURL = "https://rda.ucar.edu/cgi-bin/login"
 PRODUCTURL = "http://rda.ucar.edu/data/ds633.0/"
@@ -25,7 +24,6 @@ rdauser = os.getenv("RDAUSER")
 rdapass = os.getenv("RDAPASS")
 
 listoffiles=["e5.oper.an.pl/202104/e5.oper.an.pl.128_129_z.ll025sc.2021040100_2021040123.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_130_t.ll025sc.2021040100_2021040123.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_131_u.ll025uv.2021040100_2021040123.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_132_v.ll025uv.2021040100_2021040123.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_133_q.ll025sc.2021040100_2021040123.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_157_r.ll025sc.2021040100_2021040123.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_129_z.ll025sc.2021040200_2021040223.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_130_t.ll025sc.2021040200_2021040223.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_131_u.ll025uv.2021040200_2021040223.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_132_v.ll025uv.2021040200_2021040223.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_133_q.ll025sc.2021040200_2021040223.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_157_r.ll025sc.2021040200_2021040223.grb"]
-
 
 def get_urlopener(rdauser, rdapass):
 
@@ -55,7 +53,6 @@ def get_urlopener(rdauser, rdapass):
         cj.save("auth.rda.ucar.edu", True, True)
     return opener
 
-
 def process_file(fileID):
     opener = get_urlopener(rdauser, rdapass)
     idx = fileID.rfind("/")
@@ -75,5 +72,5 @@ def process_file(fileID):
 
 
 if __name__ == "__main__":
-    with ThreadPool(NUMPROC) as p:
+    with Pool(NUMPROC) as p:
         p.map(process_file, listoffiles)
