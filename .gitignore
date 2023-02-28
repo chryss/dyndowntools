@@ -137,3 +137,6 @@ dmypy.json
 
 # data science stuff
 data/
+
+# Authentication
+auth.*
