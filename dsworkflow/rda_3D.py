@@ -12,6 +12,7 @@ import urllib.request, urllib.parse
 import http.cookiejar
 from dotenv import load_dotenv
 from multiprocessing import Pool
+from multiprocessing.pool import ThreadPool
 
 NUMPROC = 10
 OUTPATH = Path("../../working/")
@@ -74,5 +75,5 @@ def process_file(fileID):
 
 
 if __name__ == "__main__":
-    with Pool(NUMPROC) as p:
+    with ThreadPool(NUMPROC) as p:
         p.map(process_file, listoffiles)
