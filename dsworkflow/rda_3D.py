@@ -3,57 +3,76 @@
 # python script to download selected files from rda.ucar.edu
 # after you save the file, don't forget to make it executable
 #   i.e. - "chmod 755 <name_of_script>"
-#
-import sys
-import os
-import urllib2
-import cookielib
-#
-if (len(sys.argv) != 2):
-  print "usage: "+sys.argv[0]+" [-q] password_on_RDA_webserver"
-  print "-q suppresses the progress message for each file that is downloaded"
-  sys.exit(1)
-#
-passwd_idx=1
-verbose=True
-if (len(sys.argv) == 3 and sys.argv[1] == "-q"):
-  passwd_idx=2
-  verbose=False
-#
-cj=cookielib.MozillaCookieJar()
-opener=urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
-#
-# check for existing cookies file and authenticate if necessary
-do_authentication=False
-if (os.path.isfile("auth.rda.ucar.edu")):
-  cj.load("auth.rda.ucar.edu",False,True)
-  for cookie in cj:
-    if (cookie.name == "sess" and cookie.is_expired()):
-      do_authentication=True
-else:
-  do_authentication=True
-if (do_authentication):
-  login=opener.open("https://rda.ucar.edu/cgi-bin/login","email=cwaigl@alaska.edu&password="+sys.argv[1]+"&action=login")
-#
-# save the authentication cookies for future downloads
-# NOTE! - cookies are saved for future sessions because overly-frequent authentication to our server can cause your data access to be blocked
-  cj.clear_session_cookies()
-  cj.save("auth.rda.ucar.edu",True,True)
-#
-# download the data file(s)
+# 
+# Refactored and ported to Python 3 cwaigl@alaska.edu 2023/02
+
+import sys, os
+from pathlib import Path
+import urllib.request, urllib.parse
+import http.cookiejar
+from dotenv import load_dotenv
+from multiprocessing import Pool
+
+NUMPROC = 10
+OUTPATH = Path("../../working/")
+LOGINURL = "https://rda.ucar.edu/cgi-bin/login"
+PRODUCTURL = "http://rda.ucar.edu/data/ds633.0/"
+verbose = True
+
+load_dotenv()
+rdauser = os.getenv("RDAUSER")
+rdapass = os.getenv("RDAPASS")
+
 listoffiles=["e5.oper.an.pl/202104/e5.oper.an.pl.128_129_z.ll025sc.2021040100_2021040123.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_130_t.ll025sc.2021040100_2021040123.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_131_u.ll025uv.2021040100_2021040123.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_132_v.ll025uv.2021040100_2021040123.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_133_q.ll025sc.2021040100_2021040123.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_157_r.ll025sc.2021040100_2021040123.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_129_z.ll025sc.2021040200_2021040223.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_130_t.ll025sc.2021040200_2021040223.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_131_u.ll025uv.2021040200_2021040223.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_132_v.ll025uv.2021040200_2021040223.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_133_q.ll025sc.2021040200_2021040223.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_157_r.ll025sc.2021040200_2021040223.grb"]
-for file in listoffiles:
-  idx=file.rfind("/")
-  if (idx > 0):
-    ofile=file[idx+1:]
-  else:
-    ofile=file
-  if (verbose):
-    sys.stdout.write("downloading "+ofile+"...")
-    sys.stdout.flush()
-  infile=opener.open("http://rda.ucar.edu/data/ds633.0/"+file)
-  outfile=open(ofile,"wb")
-  outfile.write(infile.read())
-  outfile.close()
-  if (verbose):
-    sys.stdout.write("done.\n")
+
+
+def get_urlopener(rdauser, rdapass):
+
+    cj = http.cookiejar.MozillaCookieJar()
+    opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
+
+    # check for existing cookies file and authenticate if necessary
+    do_authentication = False
+    if (os.path.isfile("auth.rda.ucar.edu")):
+        cj.load("auth.rda.ucar.edu", False, True)
+        for cookie in cj:
+            if (cookie.name == "sess" and cookie.is_expired()):
+                do_authentication = True
+    else:
+        do_authentication = True
+    if (do_authentication):
+        params = {
+            "email": rdauser,
+            "password": rdapass,
+            "action": "login"
+        }
+        data = urllib.parse.urlencode(params).encode("utf-8")
+        login = opener.open(
+            LOGINURL, data)
+    # save the authentication cookies for future downloads
+        cj.clear_session_cookies()
+        cj.save("auth.rda.ucar.edu", True, True)
+    return opener
+
+
+def process_file(fileID):
+    opener = get_urlopener(rdauser, rdapass)
+    idx = fileID.rfind("/")
+    if (idx > 0):
+        ofile = fileID[idx+1:]
+    else:
+        ofile = fileID
+    if (verbose):
+        sys.stdout.write(f"downloading {ofile}...\n")
+        sys.stdout.flush()
+    infile=opener.open(f"{PRODUCTURL}{fileID}")
+    outfile=open(OUTPATH / ofile, "wb")
+    outfile.write(infile.read())
+    outfile.close()
+    if (verbose):
+        sys.stdout.write(f"done with {ofile}.\n")
+
+
+if __name__ == "__main__":
+    with Pool(NUMPROC) as p:
+        p.map(process_file, listoffiles)
