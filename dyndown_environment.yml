@@ -4,6 +4,7 @@ channels:
   - defaults
 dependencies:
   - python
+  - python-dotenv
   - cartopy
   - gdal
   - wrf-python
