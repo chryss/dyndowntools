@@ -7,6 +7,7 @@
 # Refactored and ported to Python 3 cwaigl@alaska.edu 2023/02
 
 import sys, os
+import datetime as dt
 from pathlib import Path
 import urllib.request, urllib.parse
 import http.cookiejar
@@ -22,6 +23,11 @@ verbose = True
 load_dotenv()
 rdauser = os.getenv("RDAUSER")
 rdapass = os.getenv("RDAPASS")
+
+year = 2022
+month = 12
+vars3d = ['128_129_z', '128_130_t', '128_131_u', '128_132_v', 'q', '128_157_r', '128_133_q']
+vars2d = []
 
 listoffiles=["e5.oper.an.pl/202104/e5.oper.an.pl.128_129_z.ll025sc.2021040100_2021040123.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_130_t.ll025sc.2021040100_2021040123.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_131_u.ll025uv.2021040100_2021040123.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_132_v.ll025uv.2021040100_2021040123.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_133_q.ll025sc.2021040100_2021040123.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_157_r.ll025sc.2021040100_2021040123.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_129_z.ll025sc.2021040200_2021040223.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_130_t.ll025sc.2021040200_2021040223.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_131_u.ll025uv.2021040200_2021040223.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_132_v.ll025uv.2021040200_2021040223.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_133_q.ll025sc.2021040200_2021040223.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_157_r.ll025sc.2021040200_2021040223.grb"]
 
