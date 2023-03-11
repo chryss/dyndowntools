@@ -42,8 +42,7 @@ varsets = {
         '128_131_u', '128_132_v',
     ]
 }
-
-listoffiles=["e5.oper.an.pl/202104/e5.oper.an.pl.128_129_z.ll025sc.2021040100_2021040123.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_130_t.ll025sc.2021040100_2021040123.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_131_u.ll025uv.2021040100_2021040123.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_132_v.ll025uv.2021040100_2021040123.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_133_q.ll025sc.2021040100_2021040123.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_157_r.ll025sc.2021040100_2021040123.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_129_z.ll025sc.2021040200_2021040223.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_130_t.ll025sc.2021040200_2021040223.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_131_u.ll025uv.2021040200_2021040223.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_132_v.ll025uv.2021040200_2021040223.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_133_q.ll025sc.2021040200_2021040223.grb","e5.oper.an.pl/202104/e5.oper.an.pl.128_157_r.ll025sc.2021040200_2021040223.grb"]
+listoffiles=[]
 
 def get_localpth(mthstr, firsthr, lasthr, varclass, varname):
     return f"{folder}/{mthstr}/{folder}.{varname}.{varclass}.{firsthr}_{lasthr}.grb"
@@ -117,7 +116,8 @@ def process_file(fileID):
 if __name__ == "__main__":
 
     start_time = time.perf_counter()
-    # listoffiles = get_filelist(year, month)
+    if not listoffiles:
+        listoffiles = get_filelist(year, month)
     print(f"Downloading {len(listoffiles)} files.")
 
     with Pool(NUMPROC) as p:
