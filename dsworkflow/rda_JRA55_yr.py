@@ -16,8 +16,6 @@ import http.cookiejar
 from dotenv import load_dotenv
 from multiprocessing import Pool
 
-# https://rda.ucar.edu/data/ds628.0/anl_land125/1958/anl_land125.065_snwe.1958010100_1958123118
-
 NUMPROC = 20
 CHUNK = 16 * 1024
 OUTPATH_test = Path("../../working/")
@@ -26,7 +24,6 @@ LOGINURL = "https://rda.ucar.edu/cgi-bin/login"
 PRODUCTURL = "http://rda.ucar.edu/data/ds628.0/"
 VERBOSE = True
 OVERWRITE = False
-
 
 load_dotenv()
 rdauser = os.getenv("RDAUSER")
@@ -37,8 +34,6 @@ endyear = 2022
 folder = "anl_land"
 var = "065_snwe"
 listoffiles = []
-
-# https://rda.ucar.edu/data/ds628.0/anl_land/2014/anl_land.065_snwe.reg_tl319.2014020100_2014022818
 
 def get_localpth(firsthr, lasthr, folder, varname):
     yr = firsthr[:4]
