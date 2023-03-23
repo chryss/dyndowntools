@@ -1,6 +1,7 @@
+# no netcdf files in the repo! 
 *DS_Store
 .vscode
-*.nc    # no netcdf files in the repo! 
+*.nc    
 
 # locally pip-installed code
 fiweps*
