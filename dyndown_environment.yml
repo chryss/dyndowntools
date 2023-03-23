@@ -21,6 +21,7 @@ dependencies:
   - siphon
   - wget
   - dask
+  - cfgrib
   - flake8
   - pip
   - pip:
