@@ -2,6 +2,7 @@
 *DS_Store
 .vscode
 *.nc    
+dsworkflow/legacy/*
 
 # locally pip-installed code
 fiweps*
