@@ -1,0 +1,34 @@
+&share
+ wrf_core = 'ARW',
+ max_dom = 2,
+ start_date = '{startyear:s}-{startmonth:s}-{startday:s}_18:00:00','{startyear:s}-{startmonth:s}-{startday:s}_18:00:00',
+ end_date   = '{endyear:s}-{endmonth:s}-{endday:s}_00:00:00','{endyear:s}-{endmonth:s}-{endday:s}_00:00:00',
+ interval_seconds = 10800
+/
+
+&geogrid
+parent_id = 1, 1
+parent_grid_ratio = 1, 3
+i_parent_start = 1, 68
+j_parent_start = 1, 27
+e_we = 265, 421
+e_sn = 205, 451
+map_proj = 'polar'
+dx = 12000.0
+dy = 12000.0
+ref_lon = -153.5
+ref_lat = 64.0
+geog_data_res = 'default', 'default'
+geog_data_path = '/center1/DYNDOWN/cwaigl/ERA5_WRF/WPS_GEOG'
+truelat1 = 64.0
+stand_lon = -152.0
+/
+
+&ungrib
+ out_format = 'WPS',
+ prefix = 'FILE',
+/
+
+&metgrid
+ fg_name = 'FILE',
+/
