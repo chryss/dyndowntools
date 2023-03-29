@@ -9,7 +9,6 @@ umask 002
 
 # constants
 BASEDIR=/center1/DYNDOWN/cwaigl/ERA5_WRF
-value=${1:-the default value}
 MONTHDIR=${1:-"202212"}
 SCRIPTDIR=`pwd`
 
@@ -32,6 +31,9 @@ cdo -expr,'var41 = ((var41 > 0.1)) ? var41 : (0.01)'\
 cdo -expr,'var42 = ((var42 > 0.1)) ? var42 : (0.01)'\
  e5.oper.an.sfc.128_042_swvl4.ll025sc.${MONTHDIR}0100_${MONTHDIR}??23.grb\
  pos_e5.oper.an.sfc.128_042_swvl4.ll025sc.${MONTHDIR}.grb
+
+# link invariant files in monthly file 
+ln -s ../invar/*.grb .
 
 # move changed files to archive
 mv e5.oper.an.sfc.128_*swvl?.ll025sc.*.grb archive/
