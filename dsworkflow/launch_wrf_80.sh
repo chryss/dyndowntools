@@ -13,7 +13,7 @@ conda activate dyndown
 # clone a WRF run directory with the correct date label (eg 200504 for the run from May 4 to 5, 2020.)
 cp -r ${BASEDIR}/WRF/run_active ${BASEDIR}/WRF/${DATELABEL}
 # rename the SLURM script
-cp ${BASEDIR}/WRF/run_active/dscD.slurm ${BASEDIR}/WRF/${DATELABEL}/${DATELABEL}.slurm
+cp ${BASEDIR}/WRF/run_active/dsc80.slurm ${BASEDIR}/WRF/${DATELABEL}/${DATELABEL}.slurm
 # in the run directory, symbolically link the appropriate met_em files
 cd ${BASEDIR}/WRF/${DATELABEL}
 ln -s ${BASEDIR}/${WPSLABEL}/met_em.d0* .

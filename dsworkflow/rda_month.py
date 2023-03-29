@@ -31,7 +31,7 @@ rdauser = os.getenv("RDAUSER")
 rdapass = os.getenv("RDAPASS")
 
 year = 2022
-month = 11
+month = 10
 folder = "e5.oper.an.pl"
 varsets_folders = {
     "e5.oper.an.pl" : {

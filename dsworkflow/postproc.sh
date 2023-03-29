@@ -13,4 +13,5 @@ targetdir=${OUTDIR}/${DSET}/
 mkdir -p $targetdir
 cd ${BASEDIR}/WRF/${DSET}
 
-rsync -avz wrfout* $targetdir
+rsync -avz ./wrfout* $targetdir
+cp namelist.input $targetdir

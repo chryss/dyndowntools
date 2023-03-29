@@ -16,9 +16,9 @@ def parse_date(date_str):
     return parsed
 
 def parse_wpslabel(date_str):
-    """Parse YYMM or YYMM_B"""
-    date_str = date_str[:5]
-    parsed = dt.datetime.strptime(date_str+'01','%y%m%d')
+    """Parse YYYYMM or YYYYMM_B"""
+    date_str = date_str[:6]
+    parsed = dt.datetime.strptime(date_str+'01','%Y%m%d')
     current_date = dt.datetime.now()
     if parsed > current_date:
         parsed = parsed.replace(year=parsed.year - 100)
@@ -49,7 +49,7 @@ def parse_arguments():
         default=None,
         help='directory to which to deploy the namelist')
     parser.add_argument('date',  
-        help='run label for 2-day run format YYMMDD or - wps only - monthlabel with optional B for bridge: 1803_B means 2018, bridge between Feb and March',
+        help='run label for 2-day run format YYMMDD or - wps only - monthlabel with optional B for bridge: 201803_B means 2018, bridge between Feb and March',
         type=str)
     return parser.parse_args()
 
@@ -60,14 +60,17 @@ if __name__ == '__main__':
     jobs = []
     if args.type == 'both':
         jobs.extend(['wps', 'wrf'])
+        wrfdatelabel = args.date
+        wpsdatelabel = parse_date(args.date).strftime("%Y%m")
     else: 
         jobs.append( args.type)
+        wrfdatelabel = wpsdatelabel = args.date
 
     for job in jobs:
         if job == 'wrf':
-            outdir = Path(BASEDIR) / 'WRF' / args.date
+            outdir = Path(BASEDIR) / 'WRF' / wrfdatelabel
             fn = 'namelist.input'
-            nominalstart = parse_date(args.date)
+            nominalstart = parse_date(wrfdatelabel)
             startdt = nominalstart - dt.timedelta(hours=6)
             enddt = nominalstart + dt.timedelta(days=2)
             params = get_params(startdt, enddt)
@@ -76,9 +79,9 @@ if __name__ == '__main__':
                     target.write(src.read().format(**params))
         elif job == 'wps':
             fn = 'namelist.wps'
-            nominalstart = parse_wpslabel(args.date[:5])
-            outdir = Path(BASEDIR) / f'WPS{nominalstart.year}{args.date[2:]}' 
-            if args.date[-1] == 'B':
+            nominalstart = parse_wpslabel(wpsdatelabel)
+            outdir = Path(BASEDIR) / f'WPS{wpsdatelabel}' 
+            if wrfdatelabel[-1] == 'B':
                 startdt = nominalstart - dt.timedelta(days=3)
                 enddt = nominalstart + dt.timedelta(days=2)
             else: 
