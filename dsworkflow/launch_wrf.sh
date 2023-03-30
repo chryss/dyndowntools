@@ -5,6 +5,7 @@ BASEDIR=/center1/DYNDOWN/cwaigl/ERA5_WRF
 DATELABEL=$1
 WPSLABEL=$2
 SCRIPTDIR=`pwd`
+umask 002
 
 module load slurm
 source /home/cwaigl/.bashrc

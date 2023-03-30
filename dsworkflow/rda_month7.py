@@ -10,9 +10,7 @@ import sys, os
 import datetime as dt
 import calendar as cal
 import time
-import argparse
 from pathlib import Path
-from functools import partial
 import urllib.request, urllib.parse
 import http.cookiejar
 from dotenv import load_dotenv
@@ -20,18 +18,20 @@ from multiprocessing import Pool
 
 NUMPROC = 20
 CHUNK = 16 * 1024
-OUTDIR = "/center1/DYNDOWN/cwaigl/ERA5_WRF/era5_grib/"
+OUTPATH_test = Path("../../working/")
+OUTPATH = Path("/center1/DYNDOWN/cwaigl/ERA5_WRF/era5_grib/")
 LOGINURL = "https://rda.ucar.edu/cgi-bin/login"
 PRODUCTURL = "http://rda.ucar.edu/data/ds633.0/"
 VERBOSE = True
 OVERWRITE = False
+
 
 load_dotenv()
 rdauser = os.getenv("RDAUSER")
 rdapass = os.getenv("RDAPASS")
 
 year = 2022
-month = 10
+month = 7
 folder = "e5.oper.an.pl"
 varsets_folders = {
     "e5.oper.an.pl" : {
@@ -54,18 +54,6 @@ varsets_folders = {
 listoffiles = []
 # listoffiles=["e5.oper.an.sfc/202112/e5.oper.an.sfc.128_141_sd.ll025sc.2021120100_2021123123.grb",
             #  "e5.oper.an.sfc/202112/e5.oper.an.sfc.128_151_msl.ll025sc.2021120100_2021123123.grb"]
-
-def parse_arguments():
-    """Parse arguments"""
-    parser = argparse.ArgumentParser(description='Download one month worth of ERA5 input data for WRF')
-    parser.add_argument('yrmonth',  
-        help='run label for monthlabel 201803 means March 2018',
-        type=str)
-    parser.add_argument('-d', '--directory', 
-        type=str,
-        default=OUTDIR,
-        help='directory to which to save the data')
-    return parser.parse_args()
 
 def get_localpth(mthstr, firsthr, lasthr, folder, varclass, varname):
     return f"{folder}/{mthstr}/{folder}.{varname}.{varclass}.{firsthr}_{lasthr}.grb"
@@ -124,7 +112,9 @@ def get_urlopener(rdauser, rdapass):
         cj.save("auth.rda.ucar.edu", True, True)
     return opener
 
-def process_file(outpath, fileID):
+def process_file(fileID):
+    mthstr = get_monthstr(year, month)
+    outpath = OUTPATH / mthstr
     outpath.mkdir(parents=True, exist_ok=True)
     opener = get_urlopener(rdauser, rdapass)
     idx = fileID.rfind("/")
@@ -159,14 +149,8 @@ if __name__ == "__main__":
     print(f"Downloading {len(listoffiles)} files.")
     # print(listoffiles)
 
-    args = parse_arguments()
-    year = int(args.yrmonth[:5])
-    month = int(args.yrmonth[5:])
-    mthstr = args.yrmonth
-    outpath = Path(args.directory) / mthstr
-    mapfunc = partial(process_file, outpath)
     with Pool(NUMPROC) as p:
-        p.map(mapfunc, listoffiles)
+        p.map(process_file, listoffiles)
 
     run_time = time.perf_counter() - start_time
     print(f"Elapsed time: {int(run_time // 60)} minutes, {run_time % 60:0.2f} seconds")
