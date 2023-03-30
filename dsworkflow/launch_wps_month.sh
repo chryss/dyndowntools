@@ -4,6 +4,7 @@
 BASEDIR=/center1/DYNDOWN/cwaigl/ERA5_WRF
 MONTHLABEL=$1
 SCRIPTDIR=`pwd`
+umask 002
 
 source /home/cwaigl/.bashrc
 conda activate dyndown

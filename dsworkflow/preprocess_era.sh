@@ -19,16 +19,16 @@ cd ${BASEDIR}/era5_grib/${MONTHDIR}
 mkdir -p archive
 
 # Take care of the soil moisture files 
-cdo -expr,'var39 = ((var39 > 0.1)) ? var39 : (0.01)'\
+cdo -expr,'var39 = ((var39 > 0.01)) ? var39 : (0.01)'\
  e5.oper.an.sfc.128_039_swvl1.ll025sc.${MONTHDIR}0100_${MONTHDIR}??23.grb\
  pos_e5.oper.an.sfc.128_039_swvl1.ll025sc.${MONTHDIR}.grb
-cdo -expr,'var40 = ((var40 > 0.1)) ? var40 : (0.01)'\
+cdo -expr,'var40 = ((var40 > 0.01)) ? var40 : (0.01)'\
  e5.oper.an.sfc.128_040_swvl2.ll025sc.${MONTHDIR}0100_${MONTHDIR}??23.grb\
  pos_e5.oper.an.sfc.128_040_swvl2.ll025sc.${MONTHDIR}.grb
-cdo -expr,'var41 = ((var41 > 0.1)) ? var41 : (0.01)'\
+cdo -expr,'var41 = ((var41 > 0.01)) ? var41 : (0.01)'\
  e5.oper.an.sfc.128_041_swvl3.ll025sc.${MONTHDIR}0100_${MONTHDIR}??23.grb\
  pos_e5.oper.an.sfc.128_041_swvl3.ll025sc.${MONTHDIR}.grb
-cdo -expr,'var42 = ((var42 > 0.1)) ? var42 : (0.01)'\
+cdo -expr,'var42 = ((var42 > 0.01)) ? var42 : (0.01)'\
  e5.oper.an.sfc.128_042_swvl4.ll025sc.${MONTHDIR}0100_${MONTHDIR}??23.grb\
  pos_e5.oper.an.sfc.128_042_swvl4.ll025sc.${MONTHDIR}.grb
 
