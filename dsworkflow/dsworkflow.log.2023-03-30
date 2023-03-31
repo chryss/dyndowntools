@@ -1,0 +1,49 @@
+adhoc_download.sh: line 6: ${$BASEDIR}/: bad substitution
+Thu Mar 30 13:12:07 AKDT 2023 Downloading ERA5 for 202206
+Thu Mar 30 13:33:36 AKDT 2023 Preprocessing ERA5 for 202206
+Thu Mar 30 13:33:36 AKDT 2023 Downloading ERA5 for 202205
+/home/cwaigl/miniconda3/envs/dyndown/lib/python3.10/site-packages/cfgrib/xarray_to_grib.py:261: FutureWarning: GRIB write support is experimental, DO NOT RELY ON IT!
+  warnings.warn("GRIB write support is experimental, DO NOT RELY ON IT!", FutureWarning)
+cdo expr: Processed 747532800 values from 1 variable over 720 timesteps ( 28.06s )
+cdo expr: Processed 747532800 values from 1 variable over 720 timesteps ( 16.44s )
+cdo expr: Processed 747532800 values from 1 variable over 720 timesteps ( 17.74s )
+cdo expr: Processed 747532800 values from 1 variable over 720 timesteps ( 15.53s )
+Thu Mar 30 14:09:07 AKDT 2023 Preprocessing ERA5 for 202205
+Thu Mar 30 14:09:07 AKDT 2023 Downloading ERA5 for 202204
+/home/cwaigl/miniconda3/envs/dyndown/lib/python3.10/site-packages/cfgrib/xarray_to_grib.py:261: FutureWarning: GRIB write support is experimental, DO NOT RELY ON IT!
+  warnings.warn("GRIB write support is experimental, DO NOT RELY ON IT!", FutureWarning)
+cdo expr: Processed 772450560 values from 1 variable over 744 timesteps ( 32.42s )
+cdo expr: Processed 772450560 values from 1 variable over 744 timesteps ( 17.04s )
+cdo expr: Processed 772450560 values from 1 variable over 744 timesteps ( 19.20s )
+cdo expr: Processed 772450560 values from 1 variable over 744 timesteps ( 18.28s )
+Thu Mar 30 14:34:11 AKDT 2023 Preprocessing ERA5 for 202204
+Thu Mar 30 14:34:11 AKDT 2023 Downloading ERA5 for 202203
+/home/cwaigl/miniconda3/envs/dyndown/lib/python3.10/site-packages/cfgrib/xarray_to_grib.py:261: FutureWarning: GRIB write support is experimental, DO NOT RELY ON IT!
+  warnings.warn("GRIB write support is experimental, DO NOT RELY ON IT!", FutureWarning)
+cdo expr: Processed 747532800 values from 1 variable over 720 timesteps ( 14.20s )
+cdo expr: Processed 747532800 values from 1 variable over 720 timesteps ( 14.12s )
+cdo expr: Processed 747532800 values from 1 variable over 720 timesteps ( 14.73s )
+cdo expr: Processed 747532800 values from 1 variable over 720 timesteps ( 14.13s )
+Thu Mar 30 14:59:44 AKDT 2023 Preprocessing ERA5 for 202203
+Thu Mar 30 14:59:44 AKDT 2023 Downloading ERA5 for 202202
+/home/cwaigl/miniconda3/envs/dyndown/lib/python3.10/site-packages/cfgrib/xarray_to_grib.py:261: FutureWarning: GRIB write support is experimental, DO NOT RELY ON IT!
+  warnings.warn("GRIB write support is experimental, DO NOT RELY ON IT!", FutureWarning)
+cdo expr: Processed 772450560 values from 1 variable over 744 timesteps ( 21.11s )
+cdo expr: Processed 772450560 values from 1 variable over 744 timesteps ( 19.37s )
+cdo expr: Processed 772450560 values from 1 variable over 744 timesteps ( 16.62s )
+cdo expr: Processed 772450560 values from 1 variable over 744 timesteps ( 18.63s )
+Thu Mar 30 15:24:24 AKDT 2023 Preprocessing ERA5 for 202202
+Thu Mar 30 15:24:24 AKDT 2023 Downloading ERA5 for 202201
+/home/cwaigl/miniconda3/envs/dyndown/lib/python3.10/site-packages/cfgrib/xarray_to_grib.py:261: FutureWarning: GRIB write support is experimental, DO NOT RELY ON IT!
+  warnings.warn("GRIB write support is experimental, DO NOT RELY ON IT!", FutureWarning)
+cdo expr: Processed 697697280 values from 1 variable over 672 timesteps ( 12.90s )
+cdo expr: Processed 697697280 values from 1 variable over 672 timesteps ( 13.16s )
+cdo expr: Processed 697697280 values from 1 variable over 672 timesteps ( 13.21s )
+cdo expr: Processed 697697280 values from 1 variable over 672 timesteps ( 14.41s )
+Thu Mar 30 15:48:01 AKDT 2023 Preprocessing ERA5 for 202201
+/home/cwaigl/miniconda3/envs/dyndown/lib/python3.10/site-packages/cfgrib/xarray_to_grib.py:261: FutureWarning: GRIB write support is experimental, DO NOT RELY ON IT!
+  warnings.warn("GRIB write support is experimental, DO NOT RELY ON IT!", FutureWarning)
+cdo expr: Processed 772450560 values from 1 variable over 744 timesteps ( 13.68s )
+cdo expr: Processed 772450560 values from 1 variable over 744 timesteps ( 13.39s )
+cdo expr: Processed 772450560 values from 1 variable over 744 timesteps ( 13.08s )
+cdo expr: Processed 772450560 values from 1 variable over 744 timesteps ( 13.60s )

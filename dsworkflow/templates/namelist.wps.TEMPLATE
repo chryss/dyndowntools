@@ -2,7 +2,7 @@
  wrf_core = 'ARW',
  max_dom = 2,
  start_date = '{startyear:s}-{startmonth:s}-{startday:s}_18:00:00','{startyear:s}-{startmonth:s}-{startday:s}_18:00:00',
- end_date   = '{endyear:s}-{endmonth:s}-{endday:s}_00:00:00','{endyear:s}-{endmonth:s}-{endday:s}_00:00:00',
+ end_date   = '{endyear:s}-{endmonth:s}-{endday:s}_21:00:00','{endyear:s}-{endmonth:s}-{endday:s}_21:00:00',
  interval_seconds = 10800
 /
 
