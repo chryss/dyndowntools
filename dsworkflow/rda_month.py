@@ -30,8 +30,8 @@ load_dotenv()
 rdauser = os.getenv("RDAUSER")
 rdapass = os.getenv("RDAPASS")
 
-year = 2022
-month = 10
+YEAR = 2022
+MONTH = 10
 folder = "e5.oper.an.pl"
 varsets_folders = {
     "e5.oper.an.pl" : {
@@ -153,17 +153,18 @@ def process_file(outpath, fileID):
 
 if __name__ == "__main__":
 
+    args = parse_arguments()
+    year = int(args.yrmonth[:4])
+    month = int(args.yrmonth[4:])
+    mthstr = args.yrmonth
+    outpath = Path(args.directory) / mthstr
+
     start_time = time.perf_counter()
     if not listoffiles:
         listoffiles = get_filelist(year, month)
     print(f"Downloading {len(listoffiles)} files.")
     # print(listoffiles)
 
-    args = parse_arguments()
-    year = int(args.yrmonth[:5])
-    month = int(args.yrmonth[5:])
-    mthstr = args.yrmonth
-    outpath = Path(args.directory) / mthstr
     mapfunc = partial(process_file, outpath)
     with Pool(NUMPROC) as p:
         p.map(mapfunc, listoffiles)
