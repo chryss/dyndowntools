@@ -8,11 +8,16 @@ echo "Removing ungrib log"
 rm ungrib.log
 echo "Removing old intermediate ungribbed files"
 rm FILE\:*
+rm PFILE\:*
 
 echo "Running ungrib again"
-./ungrib.exe
+./ungrib.exe > /dev/null
 
 echo "Runnin metgrid again"
-./metgrid.exe
+./metgrid.exe > /dev/null
+
+echo "Deleting intermediate files"
+rm FILE\:*
+rm PFILE\:*
 
 echo "Done. Please consult ungrib and metgrid logfiles"
