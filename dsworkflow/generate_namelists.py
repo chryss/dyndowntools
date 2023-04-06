@@ -72,7 +72,7 @@ if __name__ == '__main__':
             fn = 'namelist.input'
             nominalstart = parse_date(wrfdatelabel)
             startdt = nominalstart - dt.timedelta(hours=6)
-            enddt = nominalstart + dt.timedelta(hours=47)
+            enddt = nominalstart + dt.timedelta(hours=48)
             params = get_params(startdt, enddt)
             with open(templatedir / 'namelist.input.TEMPLATE', 'r') as src:
                 with open(outdir / fn, 'w') as target:
@@ -83,7 +83,7 @@ if __name__ == '__main__':
             outdir = Path(BASEDIR) / f'WPS{wpsdatelabel}' 
             if wrfdatelabel[-1] == 'B':
                 startdt = nominalstart - dt.timedelta(days=3)
-                enddt = nominalstart + dt.timedelta(hours=47)
+                enddt = nominalstart + dt.timedelta(hours=48)
             else: 
                 days_in_month = calendar.monthrange(nominalstart.year, nominalstart.month)[1]
                 startdt = nominalstart

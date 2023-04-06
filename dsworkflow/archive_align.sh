@@ -23,6 +23,9 @@ for FNsrc in ${yrlabel}* ; do
         echo "$(ls -A ${FNsrc}/wrfout_d0* | wc -l)" wrfout files in $FNsrc
     else
         echo no wrfout files in $FNsrc
+        if [ -n "$(ls -A ${FNtarget}/wrfout_d0* 2>/dev/null)"  ] ; then 
+        else
+        fi
     fi
     if [ -d $FNtarget ] ; then 
         echo "$(ls -A ${FNtarget}/wrfout_d0* | wc -l)" wrfout files in $FNtarget
