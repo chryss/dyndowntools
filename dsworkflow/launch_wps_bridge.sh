@@ -32,7 +32,7 @@ if [[ ! $(ls -1 $LINKDIR | wc -l) -ge 85 ]]; then
     ln -s ${BASEDIR}/era5_grib/${PREVMONTH}/e5.oper.an.pl*${PREVMONTH}27*.grb .
     ln -s ${BASEDIR}/era5_grib/${PREVMONTH}/*e5.oper.an.sfc*.grb .
     ln -s ${BASEDIR}/era5_grib/invar/*.grb .
-    cd $SCRIPTDIR
+    cd ${SCRIPTDIR}
 else 
     printf '%s %s\n' "$(date)" "${LINKDIR} already contains necessary links to GRIB files"
 fi
