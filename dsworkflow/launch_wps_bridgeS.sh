@@ -16,9 +16,9 @@ conda activate dyndown
 PREVMONTH=$(date -d "${MONTHLABEL}01 - 1 month" +%Y%m)
 LINKDIR=${BASEDIR}/era5_grib/${MONTHLABEL}_B
 printf '%s %s\n' "$(date)" "Making links in ${LINKDIR}"
+mkdir -p $LINKDIR
 
 if [[ ! $(ls -1 $LINKDIR | wc -l) -ge 85 ]]; then
-    mkdir -p $LINKDIR
     cd $LINKDIR
     ln -s ${BASEDIR}/era5_grib/${MONTHLABEL}/e5.oper.an.pl*${MONTHLABEL}01*.grb .
     ln -s ${BASEDIR}/era5_grib/${MONTHLABEL}/e5.oper.an.pl*${MONTHLABEL}02*.grb .
