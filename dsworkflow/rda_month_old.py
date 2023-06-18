@@ -14,14 +14,21 @@ import argparse
 from pathlib import Path
 from functools import partial
 import urllib.request, urllib.parse
-from multiprocessing import Pool
+import http.cookiejar
+from dotenv import load_dotenv
+from multiprocessing.dummy import Pool
 
-NUMPROC = 20
+NUMPROC = 10
 CHUNK = 16 * 1024
 OUTDIR = "/center1/DYNDOWN/cwaigl/ERA5_WRF/era5_grib/"
-PRODUCTURL = "https://data.rda.ucar.edu/ds633.0/"
+LOGINURL = "https://rda.ucar.edu/cgi-bin/login"
+PRODUCTURL = "http://rda.ucar.edu/data/ds633.0/"
 VERBOSE = True
-OVERWRITE = True
+OVERWRITE = False
+
+load_dotenv()
+rdauser = os.getenv("RDAUSER")
+rdapass = os.getenv("RDAPASS")
 
 YEAR = 2022
 MONTH = 10
@@ -88,10 +95,38 @@ def get_filelist(yr, mth):
                     filelist.append(fnpth)
     return filelist
 
+
+def get_urlopener(rdauser, rdapass):
+
+    cj = http.cookiejar.MozillaCookieJar()
+    opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
+
+    # check for existing cookies file and authenticate if necessary
+    do_authentication = False
+    if (os.path.isfile("auth.rda.ucar.edu")):
+        cj.load("auth.rda.ucar.edu", False, True)
+        for cookie in cj:
+            if (cookie.name == "sess" and cookie.is_expired()):
+                do_authentication = True
+    else:
+        do_authentication = True
+    if (do_authentication):
+        params = {
+            "email": rdauser,
+            "password": rdapass,
+            "action": "login"
+        }
+        data = urllib.parse.urlencode(params).encode("utf-8")
+        login = opener.open(
+            LOGINURL, data)
+    # save the authentication cookies for future downloads
+        cj.clear_session_cookies()
+        cj.save("auth.rda.ucar.edu", True, True)
+    return opener
+
 def process_file(outpath, fileID):
     outpath.mkdir(parents=True, exist_ok=True)
-    url = f"{PRODUCTURL}{fileID}"
-    # print(url)
+    opener = get_urlopener(rdauser, rdapass)
     idx = fileID.rfind("/")
     if (idx > 0):
         ofile = fileID[idx+1:]
@@ -103,7 +138,7 @@ def process_file(outpath, fileID):
         if (VERBOSE):
             sys.stdout.write(f"... downloading {ofile} to {outpath}.\n")
         with open(outfp, "wb") as outfile:
-            with urllib.request.urlopen(url) as infile:
+            with opener.open(f"{PRODUCTURL}{fileID}") as infile:
                 while True:
                     chunk = infile.read(CHUNK)
                     if not chunk:
