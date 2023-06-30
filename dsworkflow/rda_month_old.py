@@ -16,7 +16,7 @@ from functools import partial
 import urllib.request, urllib.parse
 import http.cookiejar
 from dotenv import load_dotenv
-from multiprocessing.dummy import Pool
+from multiprocessing import Pool
 
 NUMPROC = 10
 CHUNK = 16 * 1024
