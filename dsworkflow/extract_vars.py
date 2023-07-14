@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 WRFDATA = Path.home() / "Projects/dyndowndata/Icestorm2021/" 
 OUTDATA = Path.home() / "Projects/dyndowndata/proctest02/" 
-TESTFOLDER = '211225'
+TESTFOLDER = '211229'
 SUBSETS = {'d01': '12km', 
            'd02': '4km'}
 PLEVELS = [200., 300., 500., 700., 850., 925., 1000.]
