@@ -2,6 +2,7 @@
 # Presumes 54h 
 
 import logging
+import argparse
 from pathlib import Path
 from netCDF4 import Dataset
 import wrf
@@ -32,6 +33,19 @@ VARS = ['RAINNC', 'RAINC', 'ACSNOW', 'slp',
 ACCVARS = ['rainnc', 'rainc', 'acsnow']
 PRESSUREVARS = ['temp', 'z', 'u', 'v', 'w',
         'dbz', 'twb', 'rh', 'CLDFRA', 'QVAPOR']
+
+def parse_arguments():
+    """Parse arguments"""
+    parser = argparse.ArgumentParser(description='Extract variables from wrfout to daily NetCDF')
+    parser.add_argument('-w', '--wrfdir',  
+        default=WRFDATA,
+        type=str,
+        help='directory where wrfout files are located')
+    parser.add_argument('-o','--outdir',  
+        default=None,
+        type=str,
+        help='directory to write output to')
+    return parser.parse_args()
 
 def get_var_all(fn, varname):
     return wrf.getvar(fn, varname, timeidx=wrf.ALL_TIMES, method="cat")
