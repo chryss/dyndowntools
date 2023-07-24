@@ -1,6 +1,7 @@
 # Extract variables from wrfout file
 # Presumes 54h 
 
+import sys
 import logging
 import argparse
 from pathlib import Path
@@ -11,9 +12,9 @@ import datetime as dt
 
 logging.basicConfig(level=logging.DEBUG)
 
-WRFDATA = Path.home() / "Projects/dyndowndata/Icestorm2021/" 
-OUTDATA = Path.home() / "Projects/dyndowndata/proctest02/" 
 TESTFOLDER = '211229'
+WRFDATA = Path.home() / "Projects/dyndowndata/Icestorm2021/" / TESTFOLDER
+OUTDATA = Path.home() / "Projects/dyndowndata/proctest02/" 
 SUBSETS = {'d01': '12km', 
            'd02': '4km'}
 PLEVELS = [200., 300., 500., 700., 850., 925., 1000.]
@@ -45,7 +46,21 @@ def parse_arguments():
         default=None,
         type=str,
         help='directory to write output to')
+    parser.add_argument('--yrmd',  
+        help='year-month-day to start; format YYMMDD: 201210 = Dec 10, 2020',
+        default=None,
+        type=str)
     return parser.parse_args()
+
+def get_args():
+    """Get arguments with pre-processing"""
+    args = parse_arguments()
+    args.wrfdir = Path(args.wrfdir)
+    if args.outdir is None:
+        args.outdir = args.wrfdir
+    if args.yrmd is None:
+        args.yrmd = args.wrfdir.stem
+    return args
 
 def get_var_all(fn, varname):
     return wrf.getvar(fn, varname, timeidx=wrf.ALL_TIMES, method="cat")
@@ -71,10 +86,11 @@ def postproc_pressurelevel(varname, fn, fieldtypelabel=None):
                log_p=True)
 
 if __name__ == '__main__':
+    args = get_args()
     for testset in SUBSETS:
         res = SUBSETS[testset]
-        filelist = sorted(list((WRFDATA / f"{TESTFOLDER}").glob(f"wrfout_{testset}*")))
-        startdate = dt.datetime.strptime(TESTFOLDER, '%y%m%d')
+        filelist = sorted(list((args.wrfdir).glob(f"wrfout_{testset}*")))
+        startdate = dt.datetime.strptime(args.yrmd, '%y%m%d')
 
         concatdic = {}
         mergedic = {}
@@ -155,4 +171,4 @@ if __name__ == '__main__':
             logging.info(f'Writing era5_wrf_dscale_{daystamp}_{res}.nc')
             logging.debug(f"{daystamp}")
             merged.sel(Time=slice(daystamp, daystamp)).to_netcdf(
-                OUTDATA / f"era5_wrf_dscale_{daystamp}_{res}.nc", engine="netcdf4", encoding=encoding)
+                wrf.outdir / f"era5_wrf_dscale_{res}_{daystamp}.nc", engine="netcdf4", encoding=encoding)
