@@ -43,6 +43,6 @@ cp -r ${BASEDIR}/WPS_dyndown_archivedir ${WPSDIR}
 python generate_namelists.py -t wps ${MONTHLABEL}_B
 
 cd ${WPSDIR}
-cp wps.slurm ${MONTHLABEL}.slurm
+cp wps.slurm ${MONTHLABEL}W.slurm
 ./link_grib.csh ${LINKDIR}/*.grb
-qsub ${MONTHLABEL}.slurm
+qsub ${MONTHLABEL}W.slurm

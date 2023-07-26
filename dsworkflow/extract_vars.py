@@ -10,8 +10,7 @@ import wrf
 import xarray as xr
 import datetime as dt
 
-logging.basicConfig(level=logging.DEBUG)
-
+LOGLEVEL=logging.INFO
 TESTFOLDER = '211229'
 WRFDATA = Path.home() / "Projects/dyndowndata/Icestorm2021/" / TESTFOLDER
 OUTDATA = Path.home() / "Projects/dyndowndata/proctest02/" 
@@ -50,6 +49,9 @@ def parse_arguments():
         help='year-month-day to start; format YYMMDD: 201210 = Dec 10, 2020',
         default=None,
         type=str)
+    parser.add_argument('-d', '--debug', 
+        help="switch on debugging output",
+        action="store_true")
     return parser.parse_args()
 
 def get_args():
@@ -87,6 +89,12 @@ def postproc_pressurelevel(varname, fn, fieldtypelabel=None):
 
 if __name__ == '__main__':
     args = get_args()
+
+    loglevel = LOGLEVEL
+    if args.debug:
+        loglevel = logging.DEBUG
+    logging.basicConfig(level=loglevel)
+
     for testset in SUBSETS:
         res = SUBSETS[testset]
         filelist = sorted(list((args.wrfdir).glob(f"wrfout_{testset}*")))
@@ -171,4 +179,4 @@ if __name__ == '__main__':
             logging.info(f'Writing era5_wrf_dscale_{daystamp}_{res}.nc')
             logging.debug(f"{daystamp}")
             merged.sel(Time=slice(daystamp, daystamp)).to_netcdf(
-                wrf.outdir / f"era5_wrf_dscale_{res}_{daystamp}.nc", engine="netcdf4", encoding=encoding)
+                args.outdir / f"era5_wrf_dscale_{res}_{daystamp}.nc", engine="netcdf4", encoding=encoding)
