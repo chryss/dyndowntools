@@ -13,7 +13,8 @@ source /home/cwaigl/.bashrc
 conda activate dyndown
 
 # First of all generate a link directory for month and previous month
-PREVMONTH=$(date -d "${MONTHLABEL}01 - 1 month" +%Y%m)
+PREVLABEL=$(date -d "${MONTHLABEL}01 - 1 month" +%Y%m)   # previous yrmth eg 201204
+PREVMONTH=${PREV:4:2}    # month alone, eg 02 or 11
 LINKDIR=${BASEDIR}/era5_grib/${MONTHLABEL}_B
 printf '%s %s\n' "$(date)" "Making links in ${LINKDIR}"
 mkdir -p $LINKDIR
@@ -24,11 +25,16 @@ if [[ ! $(ls -1 $LINKDIR | wc -l) -ge 85 ]]; then
     ln -s ${BASEDIR}/era5_grib/${MONTHLABEL}/e5.oper.an.pl*${MONTHLABEL}02*.grb .
     ln -s ${BASEDIR}/era5_grib/${MONTHLABEL}/e5.oper.an.pl*${MONTHLABEL}03*.grb .
     ln -s ${BASEDIR}/era5_grib/${MONTHLABEL}/*e5.oper.an.sfc*.grb .
-    ln -s ${BASEDIR}/era5_grib/${PREVMONTH}/e5.oper.an.pl*${PREVMONTH}3*.grb .
-    ln -s ${BASEDIR}/era5_grib/${PREVMONTH}/e5.oper.an.pl*${PREVMONTH}29*.grb .
-    ln -s ${BASEDIR}/era5_grib/${PREVMONTH}/e5.oper.an.pl*${PREVMONTH}28*.grb .
-    ln -s ${BASEDIR}/era5_grib/${PREVMONTH}/e5.oper.an.pl*${PREVMONTH}27*.grb .
-    ln -s ${BASEDIR}/era5_grib/${PREVMONTH}/*e5.oper.an.sfc*.grb .
+
+    ln -s ${BASEDIR}/era5_grib/${PREVLABEL}/e5.oper.an.pl*${PREVLABEL}29*.grb .
+    ln -s ${BASEDIR}/era5_grib/${PREVLABEL}/e5.oper.an.pl*${PREVLABEL}28*.grb .
+    if [[ ${PREVMONTH} != "02" ]] ; then            # it's not February
+        ln -s ${BASEDIR}/era5_grib/${PREVLABEL}/e5.oper.an.pl*${PREVLABEL}3*.grb .  
+    else                                            # it's February
+        ln -s ${BASEDIR}/era5_grib/${PREVLABEL}/e5.oper.an.pl*${PREVLABEL}27*.grb .
+        ln -s ${BASEDIR}/era5_grib/${PREVLABEL}/e5.oper.an.pl*${PREVLABEL}26*.grb .
+    fi
+    ln -s ${BASEDIR}/era5_grib/${PREVLABEL}/*e5.oper.an.sfc*.grb .
     ln -s ${BASEDIR}/era5_grib/invar/*.grb .
     cd $SCRIPTDIR
 else 
@@ -43,6 +49,6 @@ cp -r ${BASEDIR}/WPS_dyndown_archivedir ${WPSDIR}
 python generate_namelists.py -t wps ${MONTHLABEL}_B
 
 cd ${WPSDIR}
-cp wps.slurm ${MONTHLABEL}W.slurm
+cp wps.slurm ${MONTHLABEL}WB.slurm
 ./link_grib.csh ${LINKDIR}/*.grb
-qsub ${MONTHLABEL}W.slurm
+qsub ${MONTHLABEL}WB.slurm
