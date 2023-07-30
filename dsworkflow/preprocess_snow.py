@@ -49,7 +49,7 @@ if __name__ == "__main__":
         combined_DS = ds_era.sd.where(
                 glaciermask==0).combine_first(
                 snow_jra.fillna(0).interp_like(
-                ds_era, method='nearest') / 1000)
+                ds_era, method='linear') / 1000)
         ds_era['sd'] = combined_DS
         to_grib(ds_era, erapth / args.yrmonth / ("synth_" + fpth.name))
         ds_era.close()
