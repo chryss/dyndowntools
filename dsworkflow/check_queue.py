@@ -3,14 +3,21 @@ import pandas as pd
 import json
 from io import StringIO
 
-cmd = ['squeue']
-pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-csvout = StringIO(pipe.communicate()[0].decode('utf-8'))
+def get_cmd(user='cwaigl'):
+    return ['squeue', '-u', user, '-o', "%.18i %.9P %.16j %.8u %.2t %.10M %.6D %N"]
 
-df = pd.read_csv(csvout, delim_whitespace=True)
-df = df[df.USER=='cwaigl']
-outdic = {
-    "running": df[df.ST=='R'].size(),
-    "queued": df[df.ST=='PD'].size()
-}
-print(json.dumps(outdic, indent=2))
+def get_queuestatus(user='cwaigl'):
+    cmd = get_cmd(user=user)
+    pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    csvout = StringIO(pipe.communicate()[0].decode('utf-8'))
+
+    df = pd.read_csv(csvout, delim_whitespace=True)
+    df = df[df.USER==user]
+    return {
+        "running": len(df[df.ST=='R']),
+        "queued": len(df[df.ST=='PD'])
+    }
+
+if __name__ == '__main__':
+    outdic = get_queuestatus()
+    print(json.dumps(outdic, indent=2))
