@@ -72,7 +72,7 @@ if __name__ == '__main__':
                 donelist.append(dir.stem)
 
     if not args.testing:
-        with open(LOCKDIR / DONEFN, "w") as dst:
+        with open(here / LOCKDIR / DONEFN, "w") as dst:
             dst.write("\n".join(donelist))
 
     release_lock(lockpath)
