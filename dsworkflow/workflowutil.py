@@ -5,7 +5,7 @@
 
 import datetime as dt
 
-def get_bridge(date: dt.datetime -> bool):
+def get_bridge(date: dt.datetime) -> bool:
     if (
         date.month != (date + dt.timedelta(days=2)).month
         ) or (

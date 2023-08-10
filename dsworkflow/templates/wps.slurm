@@ -5,8 +5,6 @@
 #SBATCH --ntasks=24
 #SBATCH --tasks-per-node=24
 #SBATCH --mail-user=cwaigl@alaska.edu
-#SBATCH --mail-type=BEGIN
-#SBATCH --mail-type=END
 #SBATCH --mail-type=FAIL
 #SBATCH --output=wrf.%j
 
