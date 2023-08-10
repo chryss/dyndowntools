@@ -35,6 +35,7 @@ if [[ ! $(ls -1 $LINKDIR | wc -l) -ge 85 ]]; then
         ln -s ${BASEDIR}/era5_grib/${PREVLABEL}/e5.oper.an.pl*${PREVLABEL}27*.grb .
         ln -s ${BASEDIR}/era5_grib/${PREVLABEL}/e5.oper.an.pl*${PREVLABEL}26*.grb .
     fi
+    find -xtype l -delete
     cd $SCRIPTDIR
 else 
     printf '%s %s\n' "$(date)" "${LINKDIR} already contains necessary links to GRIB files"
