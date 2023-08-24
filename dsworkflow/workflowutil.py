@@ -4,6 +4,9 @@
 ##############################################
 
 import datetime as dt
+from pathlib import Path
+
+STATUSFILE = Path('status/status.feather')
 
 def get_bridge(date: dt.datetime) -> bool:
     if (

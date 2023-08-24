@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 import workflowutil as wu
 
-STATUSFILE = Path('conf/status.feather')
+STATUSFILE = wu.STATUSFILE
 FINALDIR = Path('/import/SNAP/cwaigl/wrf_era5')
 SUBDIRS = ['04km', '12km']
 
@@ -25,4 +25,4 @@ def parse_arguments():
 if __name__ == '__main__'
 
     statusdf = pd.read_feather(STATUSFILE)
-    print(statusdf)
+    print(len(statusdf))

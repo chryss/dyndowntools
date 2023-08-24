@@ -3,4 +3,5 @@ import pandas as pd
 import workflowutil as wu
 
 if __name__ == '__main__':
-    pass
+    statusdf = pd.read_feather(wu.STATUSFILE)
+    print(statusdf)
