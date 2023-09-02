@@ -13,7 +13,7 @@ MONTHDIR=${1:-"202212"}
 SCRIPTDIR=`pwd`
 
 # preprocess snow
-python preprocess_snow_experimental.py ${MONTHDIR}
+python preprocess_snow.py ${MONTHDIR}
 
 cd ${BASEDIR}/era5_grib/${MONTHDIR}
 mkdir -p archive

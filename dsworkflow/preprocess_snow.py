@@ -41,8 +41,11 @@ if __name__ == "__main__":
         glaciermask = src.glaciermask
 
     for fpth in (erapth / args.yrmonth).glob(f"{ERAPREFIX}*"):
-        monthstr_jra55 = fpth.stem[-21:-2] + "18"
-        jra55path = jrapth / f"{JRAPREFIX}{monthstr_jra55}"
+        calendarstr_jra55 = fpth.stem[-21:-2] + "18"
+        yrstr = calendarstr_jra55[:4]
+        if int(yrstr) < 2014:       # before 2014, JRA55 data comes in yearly files
+            calendarstr_jra55 = f"{yrstr}010100_{yrstr}123118"
+        jra55path = jrapth / f"{JRAPREFIX}{calendarstr_jra55}"
         with xr.open_dataset(jra55path, engine="cfgrib") as src:
             snow_jra = src.sd
         ds_era = xr.open_dataset(fpth, engine="cfgrib")
