@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SCRIPTDIR=`pwd`
+SCRIPTDIR=/center1/DYNDOWN/cwaigl/ERA5_WRF/scripts
 DATADIR=/center1/DYNDOWN/cwaigl/ERA5_WRF/WRF/staging
 TARGETDIR=/import/SNAP/cwaigl/wrf_era5
 
@@ -11,24 +11,20 @@ conda activate dyndown
 umask 002
 
 # move datafiles to staging area
-python move_datafiles.py 
-
-# move datafiles 
-cd $DATADIR
-rsync -avz -R --remove-source-files --progress * $TARGETDIR
+cd ${SCRIPTDIR}
+python ./move_datafiles.py 
 
 # checking and moving
-cd $SCRIPTDIR
 num1=$(find ${DATADIR} -type f -name era5_wrf_dscale_* | wc -l)
-num2=$(cat status/wrfdir_fordeletion.txt | wc -l)
+num2=$(cat ${SCRIPTDIR}/status/wrfdir_fordeletion.txt | wc -l)
 if (( $num1 == 4 * $num2 )); then
     echo "Everything looks right, moving files"
-    cd $DATADIR
+    cd ${DATADIR}
     rsync -avz -R --remove-source-files --progress *  $TARGETDIR
     if [ "$?" -eq "0" ]; then
         echo "rsync finished successfully; deleting directories"
-        cd $SCRIPTDIR
-        python move_datafiles.py -d
+        cd ${SCRIPTDIR}
+        python ./move_datafiles.py -d
     else 
         echo "rsync finished with error; aborting. please check."
         exit 1

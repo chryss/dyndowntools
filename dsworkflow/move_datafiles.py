@@ -76,10 +76,11 @@ if __name__ == '__main__':
         if not args.testing:
             with open(here / LOCKDIR / DONEFN, "w") as dst:
                 dst.write("\n".join(donelist))
+                dst.write("\n")
     else:
         with open(here / LOCKDIR / DONEFN, "r") as src:
             for fn in src:
-                print(f"Deleting {fn}")
+                print(f"Deleting {fn.rstrip()}")
                 shutil.rmtree((here.parent / 'WRF' / fn.rstrip()))
 
     release_lock(lockpath)
