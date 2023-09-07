@@ -20,7 +20,7 @@ num2=$(cat ${SCRIPTDIR}/status/wrfdir_fordeletion.txt | wc -l)
 if (( $num1 == 4 * $num2 )); then
     echo "Everything looks right, moving files"
     cd ${DATADIR}
-    rsync -avz -R --remove-source-files --progress *  $TARGETDIR
+    rsync -avz -R --remove-source-files * $TARGETDIR
     if [ "$?" -eq "0" ]; then
         echo "rsync finished successfully; deleting directories"
         cd ${SCRIPTDIR}

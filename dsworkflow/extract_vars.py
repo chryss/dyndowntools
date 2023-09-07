@@ -1,7 +1,6 @@
 # Extract variables from wrfout file
 # Presumes 54h 
 
-import sys
 import logging
 import argparse
 from pathlib import Path
