@@ -10,6 +10,7 @@ LOCK = "move_local.lock"
 LOCKDIR = "status"
 PREFIX = "era5_wrf_dscale"
 DONEFN = "wrfdir_fordeletion.txt"
+MOVELOCKFILE = ".dontmove"
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Move files with extacted variables to staging area')
@@ -32,17 +33,21 @@ def get_year(datestr):
 
 def files_ready(dir):
     era5files = list(dir.glob(f"{PREFIX}*"))
+    lockfiles = list(dir.glob(f"{MOVELOCKFILE}*"))
     # first condition: There are four outfiles
     cond1 = len(era5files) == 4
     if not cond1: return False
-    # second condition: the files were generated at least 5 min ago
+    # second condition: No locking against moving
+    cond2 = len(lockfiles) != 0
+    if not cond2: return False
+    # third condition: the files were generated at least 5 min ago
     now = dt.datetime.now()
-    cond2 = max(
+    cond3 = max(
         [(dt.datetime.fromtimestamp(item.stat().st_mtime) - now).seconds 
          for item in era5files]
     ) >= 300
     # both conditions need to be true
-    return cond2 
+    return cond3 
 
 if __name__ == '__main__':
     here = Path(__file__).resolve().parent
