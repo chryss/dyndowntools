@@ -17,6 +17,9 @@ MONTHS=(12 11 10 09 08 07 06 05 04 03 02 01)
 if [[ $# -gt 0 ]]
     then YEARS=($1)
 fi
+if [[ $# -gt 1 ]]
+    then MONTHS=($2)
+fi
 
 for year in "${YEARS[@]}" ; do
     for month in "${MONTHS[@]}" ; do
