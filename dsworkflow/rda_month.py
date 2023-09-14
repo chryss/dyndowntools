@@ -6,7 +6,8 @@
 # 
 # Refactored and ported to Python 3 cwaigl@alaska.edu 2023/02
 
-import sys, os
+import sys
+import ssl
 import datetime as dt
 import calendar as cal
 import time
@@ -88,6 +89,14 @@ def get_filelist(yr, mth):
                     filelist.append(fnpth)
     return filelist
 
+def read_write_chunked(url, outfile, context=None):
+        with urllib.request.urlopen(url, context=context) as infile:
+            while True:
+                chunk = infile.read(CHUNK)
+                if not chunk:
+                    break
+                outfile.write(chunk)
+
 def process_file(outpath, fileID):
     outpath.mkdir(parents=True, exist_ok=True)
     url = f"{PRODUCTURL}{fileID}"
@@ -103,18 +112,21 @@ def process_file(outpath, fileID):
         if (VERBOSE):
             sys.stdout.write(f"... downloading {ofile} to {outpath}.\n")
         with open(outfp, "wb") as outfile:
-            with urllib.request.urlopen(url) as infile:
-                while True:
-                    chunk = infile.read(CHUNK)
-                    if not chunk:
-                        break
-                    outfile.write(chunk)
+            try: 
+                read_write_chunked(url, outfile)
+            except ssl.SSLError as error:
+                # if we get a certificate error, we don't check the cert
+                print(f"An error occurred: {error}")
+                print(f"Trying without cert checking.")
+                ctx = ssl.create_default_context()
+                ctx.check_hostname = False
+                ctx.verify_mode = ssl.CERT_NONE
+                read_write_chunked(url, outfile, context=ctx)
         if (VERBOSE):
             sys.stdout.write(f"Done with {ofile}.\n")
     else:
         if (VERBOSE):
             sys.stdout.write(f"{ofile} exists, and overwite not enabled. skipping.\n")
-
 
 if __name__ == "__main__":
 
