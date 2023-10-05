@@ -38,7 +38,7 @@ def files_ready(dir):
     cond1 = len(era5files) == 4
     if not cond1: return False
     # second condition: No locking against moving
-    cond2 = len(lockfiles) != 0
+    cond2 = len(lockfiles) == 0
     if not cond2: return False
     # third condition: the files were generated at least 5 min ago
     now = dt.datetime.now()
@@ -66,17 +66,20 @@ if __name__ == '__main__':
                 if args.testing: 
                     print(dir)
                 else:
-                    year = get_year(dir.stem)
-                    out_4km = Path(WRFDIR) / OUTSUBDIR / '04km' / year
-                    out_12km = Path(WRFDIR) / OUTSUBDIR / '12km' / year
-                    out_4km.mkdir(parents=True, exist_ok=True)
-                    out_12km.mkdir(parents=True, exist_ok=True)
-                    for fpth in dir.glob(f"{PREFIX}_4km*"):
-                        print(f"Moving {fpth} to {out_4km}")
-                        shutil.move(fpth, out_4km / fpth.name)
-                    for fpth in dir.glob(f"{PREFIX}_12km*"):
-                        print(f"Moving {fpth} to {out_12km}")
-                        shutil.move(fpth, out_12km / fpth.name)
+                    for res in ['04', '12']:
+                        for fpth in dir.glob(f"{PREFIX}_{res.replace('0', '')}km*"):
+                            year = get_year(dir.stem)
+                            if year not in fpth.stem:
+                                if str(int(year) - 1) in fpth.stem:
+                                    year = year - 1
+                                elif str(int(year) + 1) in fpth.stem:
+                                    year = year + 1
+                                else:
+                                    raise Exception(f"Can't find right year for {fpth} - its not {year}")
+                            outdir = Path(WRFDIR) / OUTSUBDIR / f'{res}km' / year
+                            outdir.mkdir(parents=True, exist_ok=True)
+                            print(f"Moving {fpth} to {outdir}")
+                            shutil.move(fpth, outdir / fpth.name)
                     donelist.append(dir.stem)
         if not args.testing:
             with open(here / LOCKDIR / DONEFN, "w") as dst:
