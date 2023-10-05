@@ -17,7 +17,7 @@ def main():
             print(f"running: {line}")
             try: 
                process = subprocess.Popen(line.split(),
-                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             except Exception as e:
                 print(e)
             else:
@@ -36,7 +36,7 @@ def main():
 if __name__ == '__main__':
     queuestatus = cq.get_queuestatus()
     if queuestatus["queued"] < MAX:
-        print(f"There are {queuestatus['queued']} processes queued. Adding more.")
+        print(f"There are {queuestatus['queued']} processes queued. Adding new tasks.")
         main()
     else:
         print(f"There are {queuestatus['queued']} processes queued. Not adding any.")
