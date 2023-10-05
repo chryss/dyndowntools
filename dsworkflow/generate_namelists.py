@@ -48,6 +48,10 @@ def parse_arguments():
         type=str,
         default=None,
         help='directory to which to deploy the namelist')
+    parser.add_argument('-T', '--timestep', 
+        type=str,
+        default='60',
+        help='time step for wrf namelist')
     parser.add_argument('date',  
         help='run label for 2-day run format YYMMDD or - wps only - monthlabel with optional B for bridge: 201803_B means 2018, bridge between Feb and March',
         type=str)
@@ -74,6 +78,7 @@ if __name__ == '__main__':
             startdt = nominalstart - dt.timedelta(hours=6)
             enddt = nominalstart + dt.timedelta(hours=48)
             params = get_params(startdt, enddt)
+            params['timestep'] = args.timestep
             with open(templatedir / 'namelist.input.TEMPLATE', 'r') as src:
                 with open(outdir / fn, 'w') as target:
                     target.write(src.read().format(**params))
