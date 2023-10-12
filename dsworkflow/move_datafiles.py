@@ -71,9 +71,9 @@ if __name__ == '__main__':
                             year = get_year(dir.stem)
                             if year not in fpth.stem:
                                 if str(int(year) - 1) in fpth.stem:
-                                    year = year - 1
+                                    year = str(int(year) - 1)
                                 elif str(int(year) + 1) in fpth.stem:
-                                    year = year + 1
+                                    year = str(int(year) + 1)
                                 else:
                                     raise Exception(f"Can't find right year for {fpth} - its not {year}")
                             outdir = Path(WRFDIR) / OUTSUBDIR / f'{res}km' / year
