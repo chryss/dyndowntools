@@ -51,6 +51,9 @@ def parse_arguments():
     parser.add_argument('-d', '--debug', 
         help="switch on debugging output",
         action="store_true")
+    parser.add_argument('-e', '--experimental', 
+        help="experimental run - mark outputs",
+        action="store_true")
     return parser.parse_args()
 
 def get_args():
@@ -172,10 +175,11 @@ if __name__ == '__main__':
             var: {"zlib": True, "complevel": COMPRESSIONLEVEL}
             for var in merged.data_vars
         }
-
+        infix = ''
+        if args.experimental: infix = '_X'
         for delta in [0, 1]:
             daystamp = (startdate + dt.timedelta(days=delta)).strftime('%Y-%m-%d')
-            logging.info(f'Writing era5_wrf_dscale_{daystamp}_{res}.nc')
+            logging.info(f'Writing era5_wrf_dscale_{res}_{daystamp}{infix}.nc')
             logging.debug(f"{daystamp}")
             merged.sel(Time=slice(daystamp, daystamp)).to_netcdf(
-                args.outdir / f"era5_wrf_dscale_{res}_{daystamp}.nc", engine="netcdf4", encoding=encoding)
+                args.outdir / f"era5_wrf_dscale_{res}_{daystamp}{infix}.nc", engine="netcdf4", encoding=encoding)
