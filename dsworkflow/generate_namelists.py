@@ -48,6 +48,9 @@ def parse_arguments():
         type=str,
         default=None,
         help='directory to which to deploy the namelist')
+    parser.add_argument('-e', '--experimental', 
+        action='store_true',
+        help='use experimental namelist')
     parser.add_argument('-T', '--timestep', 
         type=str,
         default='60',
@@ -74,12 +77,16 @@ if __name__ == '__main__':
         if job == 'wrf':
             outdir = Path(BASEDIR) / 'WRF' / wrfdatelabel
             fn = 'namelist.input'
+            if args.experimental:
+                template = 'namelist.input.experimental.TEMPLATE'
+            else:
+                template = 'namelist.input.TEMPLATE'
             nominalstart = parse_date(wrfdatelabel)
             startdt = nominalstart - dt.timedelta(hours=6)
             enddt = nominalstart + dt.timedelta(hours=48)
             params = get_params(startdt, enddt)
             params['timestep'] = args.timestep
-            with open(templatedir / 'namelist.input.TEMPLATE', 'r') as src:
+            with open(templatedir / template, 'r') as src:
                 with open(outdir / fn, 'w') as target:
                     target.write(src.read().format(**params))
         elif job == 'wps':
