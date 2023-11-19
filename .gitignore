@@ -4,6 +4,10 @@
 *.nc    
 dsworkflow/legacy/*
 
+# no GIS helper files
+*.gpkg-shm 
+*.gpkg-wal 
+
 # locally pip-installed code
 fiweps*
 

@@ -31,4 +31,5 @@ stand_lon = -152.0
 
 &metgrid
  fg_name = 'FILE',
+ constants_name = 'TAVGSFC',
 /
