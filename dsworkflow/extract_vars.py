@@ -15,7 +15,7 @@ WRFDATA = Path.home() / "Projects/dyndowndata/Icestorm2021/" / TESTFOLDER
 OUTDATA = Path.home() / "Projects/dyndowndata/proctest02/" 
 SUBSETS = {'d01': '12km', 
            'd02': '4km'}
-PLEVELS = [200., 300., 500., 700., 850., 925., 1000.]
+PLEVELS = [200., 300., 500., 700., 850., 900., 925., 950., 1000.]
 COMPRESSIONLEVEL = 5
 
 VARS = ['RAINNC', 'RAINC', 'ACSNOW', 'slp', 
@@ -166,8 +166,9 @@ if __name__ == '__main__':
         merged.attrs['data'] = 'Downscaled ERA5 using WRF'
         merged.attrs['info'] = 'Alaska Climate Adaptation Science Center, University of Alaska Fairbanks'
         merged.attrs['contact'] = 'cwaigl@alaska.edu'
-        merged.attrs['version'] = 'WRF V4.3.3'
+        merged.attrs['version'] = 'WRF V4.5.1 - project v. 1.1'
         merged.interp_level.attrs['units'] = "hPa"
+        merged.wdir10.attrs['units'] = "degree"
         for var in merged.data_vars:
             merged[var].attrs['projection'] = str(merged[var].attrs['projection'])
 
