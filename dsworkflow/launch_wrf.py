@@ -29,16 +29,16 @@ def parse_arguments():
 def get_command(row):
     datestamp = pd.to_datetime(row.datelabel, format='%y%m%d')
     util = "launch_wrf.sh"
-    wpssuffix = "_C"
     if row.bridgemonth == 1:
         wpssuffix = '_B'
         if datestamp.day < 15:
             year = row.year
             month = row.month
         else:
-            year = (datestamp + dt.timedelta(days=15)).year
-            month = (datestamp + dt.timedelta(days=15)).month
+            year = (datestamp + dt.timedelta(days=20)).year
+            month = (datestamp + dt.timedelta(days=20)).month
     else:
+        wpssuffix = "_C"
         year = row.year
         month = row.month
     return f"bash {util} {row.datelabel} WPS{str(year)}{str(month).zfill(2)}{wpssuffix}"
