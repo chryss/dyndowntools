@@ -29,8 +29,8 @@ load_dotenv()
 rdauser = os.getenv("RDAUSER")
 rdapass = os.getenv("RDAPASS")
 
-startyear = 1958
-endyear = 2022
+startyear = 2023
+endyear = 2023
 folder = "anl_land"
 var = "065_snwe"
 listoffiles = []

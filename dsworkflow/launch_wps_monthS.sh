@@ -19,8 +19,8 @@ mkdir -p $LINKDIR
 
 if [[ ! $(ls -1 $LINKDIR | wc -l) -ge 85 ]]; then
     cd $LINKDIR
-    ln -sf ${BASEDIR}/era5_grib/${MONTHLABEL}/e5.oper.an.pl*${MONTHLABEL}0[1-9]*.grb .
-    ln -sf ${BASEDIR}/era5_grib/${MONTHLABEL}/e5.oper.an.pl*${MONTHLABEL}1[0-2]*.grb .
+    ln -sf ${BASEDIR}/era5_grib/${MONTHLABEL}/e5.oper.an.pl*${MONTHLABEL}1[0-9]*.grb .
+    ln -sf ${BASEDIR}/era5_grib/${MONTHLABEL}/e5.oper.an.pl*${MONTHLABEL}2[0-7]*.grb .
     ln -sf ${BASEDIR}/era5_grib/${MONTHLABEL}/*e5.oper.an.sfc*.grb .
     ln -sf ${BASEDIR}/era5_grib/invar/*.grb .
     # delete empty links
