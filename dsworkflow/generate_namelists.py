@@ -94,8 +94,12 @@ if __name__ == '__main__':
             nominalstart = parse_wpslabel(wpsdatelabel)
             outdir = Path(BASEDIR) / f'WPS{wpsdatelabel}' 
             if wrfdatelabel[-1] == 'B':
-                startdt = nominalstart - dt.timedelta(days=3)
-                enddt = nominalstart + dt.timedelta(hours=48)
+                prev = nominalstart - dt.timedelta(days=10)
+                startdt = dt.datetime(prev.year, prev.month, 25)
+                enddt = dt.datetime(nominalstart.year, nominalstart.month, 12)
+            elif wrfdatelabel[-1] == 'C':
+                startdt = dt.datetime(nominalstart.year, nominalstart.month, 10)
+                enddt = dt.datetime(nominalstart.year, nominalstart.month, 27)
             else: 
                 days_in_month = calendar.monthrange(nominalstart.year, nominalstart.month)[1]
                 startdt = nominalstart
