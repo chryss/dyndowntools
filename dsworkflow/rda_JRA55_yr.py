@@ -7,6 +7,7 @@
 # Refactored and ported to Python 3 cwaigl@alaska.edu 2023/02
 
 import sys, os
+import ssl
 import datetime as dt
 import calendar as cal
 import time
@@ -20,14 +21,9 @@ NUMPROC = 20
 CHUNK = 16 * 1024
 OUTPATH_test = Path("../../working/")
 OUTPATH = Path("/center1/DYNDOWN/cwaigl/ERA5_WRF/jra55_grib/")
-LOGINURL = "https://rda.ucar.edu/cgi-bin/login"
-PRODUCTURL = "http://rda.ucar.edu/data/ds628.0/"
+PRODUCTURL = "https://data.rda.ucar.edu/ds628.0/"
 VERBOSE = True
 OVERWRITE = False
-
-load_dotenv()
-rdauser = os.getenv("RDAUSER")
-rdapass = os.getenv("RDAPASS")
 
 startyear = 2023
 endyear = 2023
@@ -58,65 +54,45 @@ def get_filelist(startyear, endyear):
                 filelist.append(get_localpth(firsthr, lasthr, folder, var))
     return filelist
 
-
-def get_urlopener(rdauser, rdapass):
-
-    cj = http.cookiejar.MozillaCookieJar()
-    opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
-
-    # check for existing cookies file and authenticate if necessary
-    do_authentication = False
-    if (os.path.isfile("auth.rda.ucar.edu")):
-        cj.load("auth.rda.ucar.edu", False, True)
-        for cookie in cj:
-            if (cookie.name == "sess" and cookie.is_expired()):
-                do_authentication = True
-    else:
-        do_authentication = True
-    if (do_authentication):
-        params = {
-            "email": rdauser,
-            "password": rdapass,
-            "action": "login"
-        }
-        data = urllib.parse.urlencode(params).encode("utf-8")
-        login = opener.open(
-            LOGINURL, data)
-    # save the authentication cookies for future downloads
-        cj.clear_session_cookies()
-        cj.save("auth.rda.ucar.edu", True, True)
-    return opener
+def read_write_chunked(url, outfile, context=None):
+    with urllib.request.urlopen(url, context=context) as infile:
+        while True:
+            chunk = infile.read(CHUNK)
+            if not chunk:
+                break
+            outfile.write(chunk)
 
 def process_file(fileID):
     outpath = OUTPATH 
     outpath.mkdir(parents=True, exist_ok=True)
-    opener = get_urlopener(rdauser, rdapass)
+    url = f"{PRODUCTURL}{fileID}"
     idx = fileID.rfind("/")
     if (idx > 0):
         ofile = fileID[idx+1:]
     else:
         ofile = fileID
     outfp = outpath / ofile
-    
     if (not outfp.exists() or OVERWRITE):
         if (VERBOSE):
             sys.stdout.write(f"... downloading {ofile} to {outpath}.\n")
         with open(outfp, "wb") as outfile:
-            with opener.open(f"{PRODUCTURL}{fileID}") as infile:
-                while True:
-                    chunk = infile.read(CHUNK)
-                    if not chunk:
-                        break
-                    outfile.write(chunk)
+            try: 
+                read_write_chunked(url, outfile)
+            except ssl.SSLError as error:
+                # if we get a certificate error, we don't check the cert
+                print(f"An error occurred: {error}")
+                print(f"Trying without cert checking.")
+                ctx = ssl.create_default_context()
+                ctx.check_hostname = False
+                ctx.verify_mode = ssl.CERT_NONE
+                read_write_chunked(url, outfile, context=ctx)
         if (VERBOSE):
             sys.stdout.write(f"Done with {ofile}.\n")
     else:
         if (VERBOSE):
             sys.stdout.write(f"{ofile} exists, and overwite not enabled. skipping.\n")
 
-
 if __name__ == "__main__":
-
     start_time = time.perf_counter()
     if not listoffiles:
         listoffiles = get_filelist(startyear, endyear)

@@ -17,7 +17,7 @@ LINKDIR=${BASEDIR}/era5_grib/${MONTHLABEL}_C
 printf '%s %s\n' "$(date)" "Making links in ${LINKDIR}"
 mkdir -p $LINKDIR
 
-if [[ ! $(ls -1 $LINKDIR | wc -l) -ge 85 ]]; then
+if [[ ! $(ls -1 $LINKDIR | wc -l) -ge 120 ]]; then
     cd $LINKDIR
     ln -sf ${BASEDIR}/era5_grib/${MONTHLABEL}/e5.oper.an.pl*${MONTHLABEL}1[0-9]*.grb .
     ln -sf ${BASEDIR}/era5_grib/${MONTHLABEL}/e5.oper.an.pl*${MONTHLABEL}2[0-7]*.grb .
