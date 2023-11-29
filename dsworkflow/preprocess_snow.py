@@ -24,6 +24,9 @@ def parse_arguments():
         default=JRADIR,
         type=str,
         help='directory where JRA55 files are located')
+    parser.add_argument('-m', '--mask',  
+        action='store_true',
+        help='whether we should use the predefined mask')
     parser.add_argument('yrmonth',  
         help='for which download month to run; format YYYYMM: 201810 = Oct 2018',
         type=str)
@@ -34,11 +37,17 @@ if __name__ == "__main__":
     args = parse_arguments()
     erapth = Path(args.eradir)
     jrapth = Path(args.jradir)
-    maskpth = Path(MASKDIR)
-    
-    mask = maskpth / MASKFN
-    with xr.open_dataset(mask) as src:
-        glaciermask = src.glaciermask
+
+    if args.mask:
+        infix = ''
+        maskpth = Path(MASKDIR)
+        mask = maskpth / MASKFN
+        with xr.open_dataset(mask) as src:
+            glaciermask = src.glaciermask
+            cond = glaciermask==0
+    else:
+        infix='_automask'
+        cond = None
 
     for fpth in (erapth / args.yrmonth).glob(f"{ERAPREFIX}*"):
         calendarstr_jra55 = fpth.stem[-21:-2] + "18"
@@ -49,10 +58,12 @@ if __name__ == "__main__":
         with xr.open_dataset(jra55path, engine="cfgrib") as src:
             snow_jra = src.sd
         ds_era = xr.open_dataset(fpth, engine="cfgrib")
+        if not cond:
+            cond = ds_era.sd < 1.0
         combined_DS = ds_era.sd.where(
-                glaciermask==0).combine_first(
-                snow_jra.fillna(0).interp_like(
-                ds_era, method='linear') / 1000)
+            cond).combine_first(
+            snow_jra.fillna(0).interp_like(
+            ds_era, method='linear') / 1000)
         ds_era['sd'] = combined_DS
         to_grib(ds_era, erapth / args.yrmonth / ("synth_" + fpth.name))
         ds_era.close()
