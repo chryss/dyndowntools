@@ -12,6 +12,7 @@ MASKFN = "glaciermask_thresh_1m_dilate2.nc"
 ERAPREFIX = "e5.oper.an.sfc.128_141_sd.ll025sc."
 # JRAPREFIX = "anl_land125.065_snwe."
 JRAPREFIX = "anl_land.065_snwe.reg_tl319."
+THRESH = 1.0
 
 def parse_arguments():
     """Parse arguments"""
@@ -46,10 +47,10 @@ if __name__ == "__main__":
             glaciermask = src.glaciermask
             cond = glaciermask==0
     else:
-        infix='_automask'
+        infix='automask_'
         cond = None
 
-    for fpth in (erapth / args.yrmonth).glob(f"{ERAPREFIX}*"):
+    for fpth in (erapth / args.yrmonth).glob(f"{ERAPREFIX}*.grb"):
         calendarstr_jra55 = fpth.stem[-21:-2] + "18"
         yrstr = calendarstr_jra55[:4]
         if int(yrstr) < 2014:       # before 2014, JRA55 data comes in yearly files
@@ -59,11 +60,12 @@ if __name__ == "__main__":
             snow_jra = src.sd
         ds_era = xr.open_dataset(fpth, engine="cfgrib")
         if not cond:
+            
             cond = ds_era.sd < 1.0
         combined_DS = ds_era.sd.where(
             cond).combine_first(
             snow_jra.fillna(0).interp_like(
             ds_era, method='linear') / 1000)
         ds_era['sd'] = combined_DS
-        to_grib(ds_era, erapth / args.yrmonth / ("synth_" + fpth.name))
+        to_grib(ds_era, erapth / args.yrmonth / (f"synth_{infix}" + fpth.name))
         ds_era.close()
