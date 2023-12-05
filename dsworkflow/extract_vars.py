@@ -133,8 +133,8 @@ if __name__ == '__main__':
                         concatdic[varname] = postproc_pressurelevel(concatdic[varname], ncfile)
 
                 logging.debug(f"post-processing snow")
-                concatdic['SNOW'] = postproc_snow(concatdic['SNOW'])
-                concatdic['SNOWH'] = postproc_snowh(concatdic['SNOWH'])
+                # concatdic['SNOW'] = postproc_snow(concatdic['SNOW'])
+                # concatdic['SNOWH'] = postproc_snowh(concatdic['SNOWH'])
 
                 logging.info("Append to variable merge dictionary")
                 for var in concatdic:
