@@ -8,7 +8,7 @@ from cfgrib.xarray_to_grib import to_grib
 ERADIR = "/center1/DYNDOWN/cwaigl/ERA5_WRF/era5_grib"
 JRADIR = "/center1/DYNDOWN/cwaigl/ERA5_WRF/jra55_grib"
 MASKDIR = "masks"
-MASKFN = "glaciermask_thresh_1m_dilate2.nc"
+MASKFN = "glaciermask_thresh_0.5m_dilate1.nc"
 ERAPREFIX = "e5.oper.an.sfc.128_141_sd.ll025sc."
 # JRAPREFIX = "anl_land125.065_snwe."
 JRAPREFIX = "anl_land.065_snwe.reg_tl319."
@@ -59,8 +59,7 @@ if __name__ == "__main__":
         with xr.open_dataset(jra55path, engine="cfgrib") as src:
             snow_jra = src.sd
         ds_era = xr.open_dataset(fpth, engine="cfgrib")
-        if not cond:
-            
+        if cond is not None:
             cond = ds_era.sd < 1.0
         combined_DS = ds_era.sd.where(
             cond).combine_first(
