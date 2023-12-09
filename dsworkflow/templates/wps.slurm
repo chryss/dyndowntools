@@ -4,6 +4,7 @@
 #SBATCH --account=dyndown
 #SBATCH --ntasks=24
 #SBATCH --tasks-per-node=24
+#SBATCH --time=04:00:00
 #SBATCH --mail-user=cwaigl@alaska.edu
 #SBATCH --mail-type=FAIL
 #SBATCH --output=wrf.%j
@@ -26,6 +27,7 @@ cd $SLURM_SUBMIT_DIR
 # Generate a list of allocated nodes; will serve as a machinefile for mpirun
 # run ungrib and metgrid
 ./ungrib.exe > /dev/null
+./avg_tsfc.exe > /dev/null
 mpirun -np 24 ./metgrid.exe 
 # Clean up the intermediary files
 rm ./FILE*
