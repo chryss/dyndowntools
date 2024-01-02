@@ -12,7 +12,7 @@ MASKFN = "glaciermask_thresh_0.5m_dilate1.nc"
 ERAPREFIX = "e5.oper.an.sfc.128_141_sd.ll025sc."
 # JRAPREFIX = "anl_land125.065_snwe."
 JRAPREFIX = "anl_land.065_snwe.reg_tl319."
-THRESH = 1.0
+THRESH = 0.5
 
 def parse_arguments():
     """Parse arguments"""
@@ -40,15 +40,14 @@ if __name__ == "__main__":
     jrapth = Path(args.jradir)
 
     if args.mask:
+        print("loading glaciers")
         infix = ''
         maskpth = Path(MASKDIR)
         mask = maskpth / MASKFN
         with xr.open_dataset(mask) as src:
             glaciermask = src.glaciermask
-            cond = glaciermask==0
     else:
         infix='automask_'
-        cond = None
 
     for fpth in (erapth / args.yrmonth).glob(f"{ERAPREFIX}*.grb"):
         calendarstr_jra55 = fpth.stem[-21:-2] + "18"
@@ -59,8 +58,12 @@ if __name__ == "__main__":
         with xr.open_dataset(jra55path, engine="cfgrib") as src:
             snow_jra = src.sd
         ds_era = xr.open_dataset(fpth, engine="cfgrib")
-        if cond is not None:
-            cond = ds_era.sd < 1.0
+        if args.mask:
+            print("using supplied mask")
+            cond = (glaciermask==0)
+        else:
+            print("using intrinsic mask")
+            cond = ds_era.sd < THRESH
         combined_DS = ds_era.sd.where(
             cond).combine_first(
             snow_jra.fillna(0).interp_like(
