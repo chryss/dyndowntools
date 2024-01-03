@@ -8,11 +8,11 @@ from cfgrib.xarray_to_grib import to_grib
 ERADIR = "/center1/DYNDOWN/cwaigl/ERA5_WRF/era5_grib"
 JRADIR = "/center1/DYNDOWN/cwaigl/ERA5_WRF/jra55_grib"
 MASKDIR = "masks"
-MASKFN = "glaciermask_thresh_0.5m_dilate1.nc"
+MASKFN = "glaciermask_thresh_1.0m_dilate1.nc"
 ERAPREFIX = "e5.oper.an.sfc.128_141_sd.ll025sc."
 # JRAPREFIX = "anl_land125.065_snwe."
 JRAPREFIX = "anl_land.065_snwe.reg_tl319."
-THRESH = 0.5
+THRESH = 1.0
 
 def parse_arguments():
     """Parse arguments"""
@@ -28,6 +28,9 @@ def parse_arguments():
     parser.add_argument('-m', '--mask',  
         action='store_true',
         help='whether we should use the predefined mask')
+    parser.add_argument('-s', '--single',  
+        action='store_true',
+        help='whether we should only one method')
     parser.add_argument('yrmonth',  
         help='for which download month to run; format YYYYMM: 201810 = Oct 2018',
         type=str)
@@ -39,7 +42,7 @@ if __name__ == "__main__":
     erapth = Path(args.eradir)
     jrapth = Path(args.jradir)
 
-    if args.mask:
+    if args.mask or not args.single:
         print("loading glaciers")
         infix = ''
         maskpth = Path(MASKDIR)
@@ -58,12 +61,12 @@ if __name__ == "__main__":
         with xr.open_dataset(jra55path, engine="cfgrib") as src:
             snow_jra = src.sd
         ds_era = xr.open_dataset(fpth, engine="cfgrib")
-        if args.mask:
+        if args.mask or not args.single:
             print("using supplied mask")
             cond = (glaciermask==0)
-        else:
-            print("using intrinsic mask")
-            cond = ds_era.sd < THRESH
+        if not args.singls:
+            print("adding intrinsic mask")
+            cond = cond or (ds_era.sd < THRESH)
         combined_DS = ds_era.sd.where(
             cond).combine_first(
             snow_jra.fillna(0).interp_like(
