@@ -61,14 +61,14 @@ if __name__ == "__main__":
         with xr.open_dataset(jra55path, engine="cfgrib") as src:
             snow_jra = src.sd
         ds_era = xr.open_dataset(fpth, engine="cfgrib")
+        sd = ds_era.sd
         if args.mask or not args.single:
             print("using supplied mask")
-            cond = (glaciermask==0)
+            sd = sd.where(glaciermask==0)
         if not args.single:
             print("adding intrinsic mask")
-            cond = cond or (ds_era.sd < THRESH)
-        combined_DS = ds_era.sd.where(
-            cond).combine_first(
+            sd = sd.where(sd < THRESH)
+        combined_DS = sd.combine_first(
             snow_jra.fillna(0).interp_like(
             ds_era, method='linear') / 1000)
         ds_era['sd'] = combined_DS
