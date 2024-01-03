@@ -64,7 +64,7 @@ if __name__ == "__main__":
         if args.mask or not args.single:
             print("using supplied mask")
             cond = (glaciermask==0)
-        if not args.singls:
+        if not args.single:
             print("adding intrinsic mask")
             cond = cond or (ds_era.sd < THRESH)
         combined_DS = ds_era.sd.where(
