@@ -9,19 +9,36 @@ def parse_arguments():
         help='year',
         default=YEAR,
         type=int)
+    parser.add_argument('-r', '--reverse',
+        help='reverse order',
+        action='store_false')
     return parser.parse_args()
 
 if __name__ == '__main__':
     args = parse_arguments()
-    for ii in range(12, 0, -1):
-        if (ii + 3) > 12:
-            wrfmth = str(ii + 3 - 12).zfill(2)
+    if args.reverse:
+        start = 12
+        stop = 0
+        step = -1
+        mult = 1
+    else:
+        start = 1
+        stop = 13
+        step = 1
+        mult = -1
+    for ii in range(start, stop, step):
+        if (ii + mult * 3) > 12:
+            wrfmth = str(ii + mult * 3 - 12).zfill(2)
             wrfyr = str(args.year+1)
+        elif (ii + mult * 3) < 1:
+            wrfmth = str(ii + mult * 3 + 12).zfill(2)
+            wrfyr = str(args.year-1)
         else:
-            wrfmth = str(ii + 3).zfill(2)
+            wrfmth = str(ii + mult * 3).zfill(2)
             wrfyr = str(args.year)
         wpsmth = str(ii).zfill(2)
         wpsyr = str(args.year)
         print(f"bash launch_wps_monthS.sh {wpsyr}{wpsmth}")
         print(f"bash launch_wps_bridgeS.sh {wpsyr}{wpsmth}")
         print(f"python launch_wrf.py -bb -ba {wrfyr}{wrfmth}")
+
