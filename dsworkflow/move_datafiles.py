@@ -88,7 +88,15 @@ if __name__ == '__main__':
     else:
         with open(here / LOCKDIR / DONEFN, "r") as src:
             for fn in src:
-                print(f"Deleting {fn.rstrip()}")
-                shutil.rmtree((here.parent / 'WRF' / fn.rstrip()))
-
+                if (
+                    (here.parent / 'WRF' / fn.rstrip()).is_dir() and
+                    len(fn.rstrip()) == 6):
+                    print(f"Deleting {fn.rstrip()}")
+                    try:
+                        shutil.rmtree((here.parent / 'WRF' / fn.rstrip()))
+                    except OSError as err:
+                        print(f"There was an error trying to delete {fn.rstrip()}")
+                        print("Check deletion file and proceed manually.")
+                        print(err)
+                        break
     release_lock(lockpath)
