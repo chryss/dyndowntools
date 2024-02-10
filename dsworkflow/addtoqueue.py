@@ -2,6 +2,7 @@
 import argparse
 
 YEAR = 1976
+DELTA = 4
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Print out one year worth of WRF and WPS tasks for given year')
@@ -27,18 +28,17 @@ if __name__ == '__main__':
         step = 1
         mult = -1
     for ii in range(start, stop, step):
-        if (ii + mult * 3) > 12:
-            wrfmth = str(ii + mult * 3 - 12).zfill(2)
+        if (ii + mult * DELTA) > 12:
+            wrfmth = str(ii + mult * DELTA - 12).zfill(2)
             wrfyr = str(args.year+1)
-        elif (ii + mult * 3) < 1:
-            wrfmth = str(ii + mult * 3 + 12).zfill(2)
+        elif (ii + mult * DELTA) < 1:
+            wrfmth = str(ii + mult * DELTA + 12).zfill(2)
             wrfyr = str(args.year-1)
         else:
-            wrfmth = str(ii + mult * 3).zfill(2)
+            wrfmth = str(ii + mult * DELTA).zfill(2)
             wrfyr = str(args.year)
         wpsmth = str(ii).zfill(2)
         wpsyr = str(args.year)
         print(f"bash launch_wps_monthS.sh {wpsyr}{wpsmth}")
         print(f"bash launch_wps_bridgeS.sh {wpsyr}{wpsmth}")
         print(f"python launch_wrf.py -bb -ba {wrfyr}{wrfmth}")
-
