@@ -35,7 +35,10 @@ def get_command(row):
             year = row.year
             month = row.month
         else:
-            year = (datestamp + dt.timedelta(days=20)).year
+            if row.year < 1969: 
+                year = (datestamp + dt.timedelta(days=20)).year - 100
+            else: 
+                year = (datestamp + dt.timedelta(days=20)).year
             month = (datestamp + dt.timedelta(days=20)).month
     else:
         wpssuffix = "_C"
