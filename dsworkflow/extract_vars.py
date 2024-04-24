@@ -63,8 +63,8 @@ def get_args():
     if args.outdir is None:
         args.outdir = args.wrfdir
     if args.yrmd is None:
-        yrstr = args.wrfdir.stem[:2]
-        if int(yrstr) > 39:
+        yrstr = args.wrfdir.stem
+        if int(yrstr[:2]) > 39:
             args.yrmd = '19' + yrstr
         else: 
             args.yrmd = '20' + yrstr
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     for testset in SUBSETS:
         res = SUBSETS[testset]
         filelist = sorted(list((args.wrfdir).glob(f"wrfout_{testset}*")))
-        startdate = dt.datetime.strptime(args.yrmd, '%Ym%d')
+        startdate = dt.datetime.strptime(args.yrmd, '%Y%m%d')
 
         concatdic = {}
         mergedic = {}
