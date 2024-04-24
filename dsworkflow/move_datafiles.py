@@ -29,8 +29,11 @@ def release_lock(lockpath):
     lockpath.unlink()
 
 def get_year(datestr):
-    return dt.datetime.strptime(datestr, '%y%m%d').strftime('%Y')
-
+    twodigyear = int(datestr[:2])
+    if twodigyear < 40:
+        return str(2000 + twodigyear)
+    return str(1900 + twodigyear)
+    
 def files_ready(dir):
     era5files = list(dir.glob(f"{PREFIX}*"))
     lockfiles = list(dir.glob(f"{MOVELOCKFILE}*"))
