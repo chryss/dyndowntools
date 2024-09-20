@@ -3,6 +3,7 @@
 import argparse
 from pathlib import Path
 import xarray as xr
+import pandas as pd
 from cfgrib.xarray_to_grib import to_grib
 
 ERADIR = "/center1/DYNDOWN/cwaigl/ERA5_WRF/era5_grib"
@@ -52,20 +53,31 @@ if __name__ == "__main__":
         infix='automask_'
 
     for fpth in (erapth / args.yrmonth).glob(f"{ERAPREFIX}*.grb"):
+        # open both ERA5 and JRA55 datasets
         calendarstr = fpth.stem[-21:-2] + "18"
         jra55path = jrapth / JRAFN
         with xr.open_dataset(jra55path, engine="cfgrib") as src:
             snow_jra = src.sd
         ds_era = xr.open_dataset(fpth, engine="cfgrib")
         sd = ds_era.sd
+        # masking of ERA5 snow
         if args.mask or not args.single:
             print("using supplied mask")
             sd = sd.where(glaciermask==0)
         if not args.single:
             print("adding intrinsic mask")
             sd = sd.where(sd < THRESH)
+        # prepare JRA climatology slice with appropriate time coordinate
+        numdays = len(ds_era.time) // 24
+        theyear = ds_era.isel(time=0).time.dt.year.item()
+        themonth = ds_era.isel(time=0).time.dt.month.item()
+        startdatestr = f'{theyear}-{themonth}-01T00:00:00.000000000'
+        startdatestr_JRA = f'1985-{themonth}-01T18:00:00.000000000'
+        JRAclim_slice = snow_jra.sel(time=pd.date_range(startdatestr_JRA, freq='D', periods=numdays+1))
+        JRAclim_slice.coords['time'] = pd.date_range(startdatestr, freq='D', periods=numdays+1)
+        # combining
         combined_DS = sd.combine_first(
-            snow_jra.fillna(0).interp_like(
+            JRAclim_slice.fillna(0).interp_like(
             ds_era, method='linear') / 1000)
         ds_era['sd'] = combined_DS
         to_grib(ds_era, erapth / args.yrmonth / (f"synth_{infix}" + fpth.name))

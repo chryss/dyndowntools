@@ -8,7 +8,11 @@ umask 002
 
 module purge
 module load slurm
-module load data/netCDF-Fortran/4.4.4-pic-intel-2016b
+# new chinook
+module load intel-compilers/2023.1.0 iimpi/2023a 
+module load netCDF/4.9.2 netCDF-Fortran/4.6.1
+# old chinook 
+# module load data/netCDF-Fortran/4.4.4-pic-intel-2016b
 source /home/cwaigl/.bashrc
 conda activate dyndown
 

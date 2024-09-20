@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#SBATCH --partition=t2small
+#SBATCH --partition=t1small
 #SBATCH --account=dyndown
 #SBATCH --ntasks=24
 #SBATCH --tasks-per-node=24
@@ -21,7 +21,11 @@ export WRF_KPP=0
 . /etc/profile.d/modules.sh
 module purge
 module load slurm
-module load data/netCDF-Fortran/4.4.4-pic-intel-2016b
+# new chinook
+module load intel-compilers/2023.1.0 iimpi/2023a 
+module load netCDF/4.9.2 netCDF-Fortran/4.6.1
+# old chinook 
+# module load data/netCDF-Fortran/4.4.4-pic-intel-2016b
 
 cd $SLURM_SUBMIT_DIR
 # Generate a list of allocated nodes; will serve as a machinefile for mpirun
