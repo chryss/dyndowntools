@@ -21,17 +21,18 @@ export WRF_KPP=0
 . /etc/profile.d/modules.sh
 module purge
 module load slurm
-# new chinook
-module load intel-compilers/2023.1.0 iimpi/2023a 
-module load netCDF/4.9.2 netCDF-Fortran/4.6.1
-export NETCDF=/usr/local/pkg/MPI/intel/2023.1.0/impi/2021.9.0/netCDF-Fortran/4.6.1/
+module load data/netCDF-Fortran/4.4.4-pic-intel-2016b
 
 cd $SLURM_SUBMIT_DIR
+# Generate a list of allocated nodes; will serve as a machinefile for mpirun
+srun -l /bin/hostname | sort -n | awk '{print $2}' > ./nodes.$SLURM_JOB_ID
 # Create a lockfile against output moving
 touch ./.dontmove_ongoingrun
 # Launch the MPI application
-mpirun -np 16 ./real.exe
-mpirun -np $SLURM_NTASKS ./wrf.exe
+mpirun -np 16 real.exe
+mpirun -np $SLURM_NTASKS -machinefile ./nodes.$SLURM_JOB_ID ./wrf.exe
+# Clean up the machinefile
+rm ./nodes.$SLURM_JOB_ID
 # Extract variables
 eval "$(conda shell.bash hook)"
 conda activate dyndown
