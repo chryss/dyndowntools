@@ -25,4 +25,4 @@ cd ${SCRIPTDIR}
 python generate_namelists.py -e -t wrf -T ${TIMESTEP} ${DATELABEL}
 # in the run directory, submit SLURM job
 cd ${BASEDIR}/WRF/${DATELABEL}
-qsub ${DATELABEL}x.slurm
+sbatch ${DATELABEL}x.slurm
