@@ -44,4 +44,4 @@ python generate_namelists.py -t wps ${MONTHLABEL}_C
 cd ${WPSDIR}
 cp wps.slurm ${MONTHLABEL}WC.slurm
 ./link_grib.csh ${LINKDIR}/*.grb
-qsub ${MONTHLABEL}WC.slurm
+sbatch ${MONTHLABEL}WC.slurm
