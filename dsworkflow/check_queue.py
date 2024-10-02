@@ -11,7 +11,7 @@ def get_queuestatus(user='cwaigl'):
     pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     csvout = StringIO(pipe.communicate()[0].decode('utf-8'))
 
-    df = pd.read_csv(csvout, delim_whitespace=True)
+    df = pd.read_csv(csvout, sep='\s+')
     df = df[df.USER==user]
     return {
         "running": len(df[df.ST=='R']),

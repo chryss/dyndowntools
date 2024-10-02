@@ -29,16 +29,19 @@ def parse_arguments():
 def get_command(row):
     datestamp = pd.to_datetime(row.datelabel, format='%y%m%d')
     util = "launch_wrf.sh"
-    wpssuffix = ""
     if row.bridgemonth == 1:
         wpssuffix = '_B'
-        if datestamp.day < 10:
+        if datestamp.day < 15:
             year = row.year
             month = row.month
         else:
-            year = (datestamp + dt.timedelta(days=10)).year
-            month = (datestamp + dt.timedelta(days=10)).month
+            if row.year < 1969: 
+                year = (datestamp + dt.timedelta(days=20)).year - 100
+            else: 
+                year = (datestamp + dt.timedelta(days=20)).year
+            month = (datestamp + dt.timedelta(days=20)).month
     else:
+        wpssuffix = "_C"
         year = row.year
         month = row.month
     return f"bash {util} {row.datelabel} WPS{str(year)}{str(month).zfill(2)}{wpssuffix}"
@@ -57,9 +60,9 @@ if __name__ == '__main__':
     selected = statusdf[(statusdf.year == year) & (statusdf.month.isin(months))]
     # print(selected[( selected.datelabel.str.slice(start=4).astype(int) < 10 )])
     if not args.bridgebefore:
-        selected = selected[( selected.datelabel.str.slice(start=4).astype(int) > 10 ) | ( selected.bridgemonth == 0)]
+        selected = selected[( selected.datelabel.str.slice(start=4).astype(int) > 15 ) | ( selected.bridgemonth == 0)]
     if not args.bridgeafter:
-        selected = selected[( selected.datelabel.str.slice(start=4).astype(int) < 10 ) | ( selected.bridgemonth == 0) ]
+        selected = selected[( selected.datelabel.str.slice(start=4).astype(int) < 15 ) | ( selected.bridgemonth == 0) ]
 
     for _, row in selected.iterrows():
         commandelms = get_command(row).split()

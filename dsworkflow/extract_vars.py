@@ -45,7 +45,7 @@ def parse_arguments():
         type=str,
         help='directory to write output to')
     parser.add_argument('--yrmd',  
-        help='year-month-day to start; format YYMMDD: 201210 = Dec 10, 2020',
+        help='year-month-day to start; format YYYYMMDD: 20201210 = Dec 10, 2020',
         default=None,
         type=str)
     parser.add_argument('-d', '--debug', 
@@ -63,7 +63,11 @@ def get_args():
     if args.outdir is None:
         args.outdir = args.wrfdir
     if args.yrmd is None:
-        args.yrmd = args.wrfdir.stem
+        yrstr = args.wrfdir.stem
+        if int(yrstr[:2]) > 39:
+            args.yrmd = '19' + yrstr
+        else: 
+            args.yrmd = '20' + yrstr
     return args
 
 def get_var_all(fn, varname):
@@ -100,7 +104,7 @@ if __name__ == '__main__':
     for testset in SUBSETS:
         res = SUBSETS[testset]
         filelist = sorted(list((args.wrfdir).glob(f"wrfout_{testset}*")))
-        startdate = dt.datetime.strptime(args.yrmd, '%y%m%d')
+        startdate = dt.datetime.strptime(args.yrmd, '%Y%m%d')
 
         concatdic = {}
         mergedic = {}
@@ -133,8 +137,8 @@ if __name__ == '__main__':
                         concatdic[varname] = postproc_pressurelevel(concatdic[varname], ncfile)
 
                 logging.debug(f"post-processing snow")
-                concatdic['SNOW'] = postproc_snow(concatdic['SNOW'])
-                concatdic['SNOWH'] = postproc_snowh(concatdic['SNOWH'])
+                # concatdic['SNOW'] = postproc_snow(concatdic['SNOW'])
+                # concatdic['SNOWH'] = postproc_snowh(concatdic['SNOWH'])
 
                 logging.info("Append to variable merge dictionary")
                 for var in concatdic:
