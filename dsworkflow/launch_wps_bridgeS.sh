@@ -8,7 +8,11 @@ umask 002
 
 module purge
 module load slurm
-module load data/netCDF-Fortran/4.4.4-pic-intel-2016b
+# new chinook
+module load intel-compilers/2023.1.0 iimpi/2023a 
+module load netCDF/4.9.2 netCDF-Fortran/4.6.1
+# old chinook 
+# module load data/netCDF-Fortran/4.4.4-pic-intel-2016b
 source /home/cwaigl/.bashrc
 conda activate dyndown
 
@@ -19,22 +23,16 @@ LINKDIR=${BASEDIR}/era5_grib/${MONTHLABEL}_B
 printf '%s %s\n' "$(date)" "Making links in ${LINKDIR}"
 mkdir -p $LINKDIR
 
-if [[ ! $(ls -1 $LINKDIR | wc -l) -ge 85 ]]; then
+if [[ ! $(ls -1 $LINKDIR | wc -l) -ge 130 ]]; then
     cd $LINKDIR
-    ln -sf ${BASEDIR}/era5_grib/${MONTHLABEL}/e5.oper.an.pl*${MONTHLABEL}01*.grb .
-    ln -sf ${BASEDIR}/era5_grib/${MONTHLABEL}/e5.oper.an.pl*${MONTHLABEL}02*.grb .
-    ln -sf ${BASEDIR}/era5_grib/${MONTHLABEL}/e5.oper.an.pl*${MONTHLABEL}03*.grb .
+    ln -sf ${BASEDIR}/era5_grib/${MONTHLABEL}/e5.oper.an.pl*${MONTHLABEL}0[1-9]*.grb .
+    ln -sf ${BASEDIR}/era5_grib/${MONTHLABEL}/e5.oper.an.pl*${MONTHLABEL}1[0-2]*.grb .
+    ln -sf ${BASEDIR}/era5_grib/${PREVLABEL}/e5.oper.an.pl*${PREVLABEL}2[5-9]*.grb .
+    ln -sf ${BASEDIR}/era5_grib/${PREVLABEL}/e5.oper.an.pl*${PREVLABEL}3*.grb . 
     ln -sf ${BASEDIR}/era5_grib/${MONTHLABEL}/*e5.oper.an.sfc*.grb .
-    ln -sf ${BASEDIR}/era5_grib/${PREVLABEL}/e5.oper.an.pl*${PREVLABEL}29*.grb .
-    ln -sf ${BASEDIR}/era5_grib/${PREVLABEL}/e5.oper.an.pl*${PREVLABEL}28*.grb .
     ln -sf ${BASEDIR}/era5_grib/${PREVLABEL}/*e5.oper.an.sfc*.grb .
     ln -sf ${BASEDIR}/era5_grib/invar/*.grb .
-    if [[ ${PREVMONTH} != "02" ]] ; then            # it's not February
-        ln -sf ${BASEDIR}/era5_grib/${PREVLABEL}/e5.oper.an.pl*${PREVLABEL}3*.grb .  
-    else                                            # it's February
-        ln -sf ${BASEDIR}/era5_grib/${PREVLABEL}/e5.oper.an.pl*${PREVLABEL}27*.grb .
-        ln -sf ${BASEDIR}/era5_grib/${PREVLABEL}/e5.oper.an.pl*${PREVLABEL}26*.grb .
-    fi
+    # delete empty links
     find -xtype l -delete
     cd $SCRIPTDIR
 else 
@@ -51,4 +49,4 @@ python generate_namelists.py -t wps ${MONTHLABEL}_B
 cd ${WPSDIR}
 cp wps.slurm ${MONTHLABEL}WB.slurm
 ./link_grib.csh ${LINKDIR}/*.grb
-qsub ${MONTHLABEL}WB.slurm
+sbatch ${MONTHLABEL}WB.slurm

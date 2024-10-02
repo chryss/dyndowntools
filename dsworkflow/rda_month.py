@@ -20,7 +20,8 @@ from multiprocessing import Pool
 NUMPROC = 20
 CHUNK = 16 * 1024
 OUTDIR = "/center1/DYNDOWN/cwaigl/ERA5_WRF/era5_grib/"
-PRODUCTURL = "https://data.rda.ucar.edu/ds633.0/"
+# PRODUCTURL = "https://data.rda.ucar.edu/ds633.0/"   # old: before summer 2024
+PRODUCTURL = "https://data.rda.ucar.edu/d633000/"   
 VERBOSE = True
 OVERWRITE = True
 
