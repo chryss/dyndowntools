@@ -9,7 +9,7 @@ The repo's content are as follows:
 
  - `config/`: files relating to the domain configuration as well as miscellaneous configuration files
  - `dsworkflow/`: the code that orchestrates all aspects of the downscaling process (see below for details)
- - `dsworkflow_legacy\`: previous iterations of workflow code, some inherited from others
+ - `dsworkflow_legacy/`: previous iterations of workflow code, some inherited from others
  - `dyndowntools/`: placeholder for importable package
  - `Jupyter_Notebooks/`: exploratory or analysis code, as well as visualizations, to be run interactively
  - `scripts/`: stand-alone scripts
@@ -19,14 +19,14 @@ The repo's content are as follows:
 
 ### 1. Download and preprocess ERA5 files
 
-Manually run `era5_download.sh [YEAR] [MONTH]` for a single month. For a whole year, edit/check script to enable list of months and run it `era5_download.sh [YEAR]`. Similarly, multiple years can be downloaded at once. 
+Manually run `era5_download.sh [YEAR] [MONTH]` to download and preprocess ERA5 input files for a single month. For a whole year, edit/check script to enable list of months and run it `era5_download.sh [YEAR]`. Similarly, multiple years can be downloaded at once. 
 
 The script first calls `rda_month.py YYYYMM`, which uses joblib to paralellize / accelerate download.
 
-Once a month's worth of ERA5 data is downloaded, `era5_download.sh` calls `preprocess_era.sh` is run. It does two things: 
+Once a month's worth of ERA5 data is downloaded, `era5_download.sh` calls and runs `preprocess_era.sh`. This script does two things: 
 
-  - using `cdo` from the command line, replace negative values in the soil moisture files with 0.01.
-  - calling `preprocess_snow.py` on the snow input data to create combined synthetic snow dataset including the (already downloaded) JRA55 data. **NOTE:** Before 1958/10, replace  `preprocess_snow.py` with `preprocess_snow_fromclim.py` in  `preprocess_era.sh`, to use (already generated) snow climatology instead of JRA55 data
+  - using `cdo` from the command line, it replaces negative values in the soil moisture files with a value of 0.01.
+  - calling `preprocess_snow.py` on the snow input data it creates combined synthetic snow dataset including the (already downloaded) JRA55 data. **NOTE:** When working on data from before October 1958, replace  `preprocess_snow.py` with `preprocess_snow_fromclim.py` in  `preprocess_era.sh`, to use the (already generated) snow climatology instead of JRA55 data
 
 ### 2. WRF Preprocessing System (WPS)
 
@@ -74,11 +74,36 @@ Some transformations are:
 
 ### 5. Automation & cleanup
 
-*TODO: Write about `crontab` configuration and cleanup scripts *
+For development and debugging purposes, the above steps can be run manually. But in production, the sequence WPS --> WRF --> data archiving needs to be automated. This is implemented through the following `crontab` entry:
+
+```
+# save synthetic snow
+54 1 * * * /bin/bash /center1/DYNDOWN/cwaigl/ERA5_WRF/scripts/cleanup_snow.sh
+
+# archive datafiles and clean up WRF directories
+4  1,5,9,13,17,21 * * * /bin/bash /center1/DYNDOWN/cwaigl/ERA5_WRF/scripts/cleanup_datafiles.sh   
+
+# check queue and add to it
+19,49 * * * * /bin/bash /center1/DYNDOWN/cwaigl/ERA5_WRF/scripts/manage_queue.sh 
+```
+
+Details on these three scripts:
+
+`cleanup_snow.sh` moves any new combined snow files to a storage location. This runs once every night. 
+
+`cleanup_datafiles.sh` executes multiple actions that have for combined effect to move all extracted output data files to a storage location and delete the directories of completed WRF runs (including the `wrfout` files). In a first step, `move_datafiles.py` checks all subdirectories of the WRF working directory for completed WRF runs. For all completed runs, the output files are moved to a staging area and the directory marked for deletion via the file `status/wrfdir_fordeletion.txt`. Then the files are moved to the storage location. When the files have successfully been moved, the marked directories are deleted. This is run every 4h to keep storage use low and data moved.
+
+`manage_queue.sh` is a wrapper around the Python script `run_queue.py`. This script checks the queue (see `check_queue.py`) for how many tasks are running and queued, respectively. If fewer than a certain number (default: 10) are queued, the next N (default: 3) lines of commands from `status/taskqueue.txt` are executed, which adds tasks to the queue. See below for how this file gets replenished with tasks.  
+
+So the overall recipe for running production is as follows:
+
+  - Run `era5_download.sh [YEAR]` for the two or three years before the current status (by default, we run backwards starting in 2023). Then manually check completeness of download (by watching error messages and counting downloaded files). These checks prevent failed incomplete WPS runs that often show up only at the WRF stage, so it saves time to check initially.
+  - Run `addtoqueue.py` and once satisfied, pipe the output into `status/taskqueue.txt`. This script generates a year's worth of launch commands for WPS and WRF runs. For each month, there are two WPS runs  (for `_C` and `_B` folders) and one `launch_wrf.py` command for a month's worth of WRF runs. The WPS runs go from December to January (there is an option to reverse the order and run the dataset forward in time), and the WRF runs lag 4 months behind the WPS runs, so they go from April of the previously-run (=next in time) year to May. As long as there are tasks available in `status/taskqueue.txt`, they can be picked up and executed (and removed from the queue) by `manage_queue.sh`, run on the crontab. 
+  - Once a year's worth of WRF runs is complete, check the output files in their final location. Approximately run per year typically terminates prematurely and needs to be re-run with a shorter timestep, using `launch_wrf.sh YYMMDD [WPSFOLDER] 30` (for 30s step). If entire WRF runs fail, the issue may be incomplete `met_em` files in the correspondin WPS folder, which is typically caused by incomplete downloads. 
+  - Once the whole year's (or at least several months) worth of output is found satisfactory and quality-checked, delete the WPS folders and original ERA5 downloads. The synthetic combined snow will have been archived off before this point automatically. 
 
 ### 6. Prerequisites & housekeeping
 
-*TODO: Write about `status.feather` and how it is used and updated.*
+The scripts presume the availability of a conda environment named `dyndown` with all the required Python dependencies installed. Use the provided `dyndown_environment.yml` file to install such an environment. Also, modules and paths are specific to the HPC environment `chinook` provided by the University of Alaska Fairbanks Research Computing Systems team. 
 
-
-
+The mapping of datestamps for WRF runs to WPS folders is managed via the file `status.feather` in the `status/` folder. It can be generated and updated for the desired daterange using the `taskcontrol.ipynb` Jupyter Notebook. 

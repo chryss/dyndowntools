@@ -5,7 +5,7 @@ from pathlib import Path
 import check_queue as cq
 
 QUEUEFILE = Path('status/taskqueue.txt')
-N = 2
+N = 3
 MAX = 10
 
 def main():
