@@ -1,7 +1,7 @@
 #!/bin/sh
 
-#SBATCH --partition=t1small
-#SBATCH --account=dyndown
+#SBATCH --partition=t2small
+#SBATCH --account=cmip6
 #SBATCH --ntasks=24
 #SBATCH --tasks-per-node=24
 #SBATCH --time=04:00:00

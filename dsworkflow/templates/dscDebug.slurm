@@ -1,8 +1,8 @@
 #!/bin/sh
 
-#SBATCH --partition=t1small
+#SBATCH --partition=t2small
 #SBATCH --time=18:00:00
-#SBATCH --account=dyndown
+#SBATCH --account=cmip6
 #SBATCH --ntasks=56
 #SBATCH --tasks-per-node=28
 #SBATCH --mail-user=cwaigl@alaska.edu
@@ -24,19 +24,14 @@ module load slurm
 # new chinook
 module load intel-compilers/2023.1.0 iimpi/2023a 
 module load netCDF/4.9.2 netCDF-Fortran/4.6.1
-# old chinook 
-# module load data/netCDF-Fortran/4.4.4-pic-intel-2016b
+export NETCDF=/usr/local/pkg/MPI/intel/2023.1.0/impi/2021.9.0/netCDF-Fortran/4.6.1/
 
 cd $SLURM_SUBMIT_DIR
-# Generate a list of allocated nodes; will serve as a machinefile for mpirun
-srun -l /bin/hostname | sort -n | awk '{print $2}' > ./nodes.$SLURM_JOB_ID
-# Create a lockfile against output moving - debug run 
+# Create a lockfile against output moving
 touch ./.dontmove_debug
 # Launch the MPI application
-mpirun -np 16 real.exe
-mpirun -np $SLURM_NTASKS -machinefile ./nodes.$SLURM_JOB_ID ./wrf.exe
-# Clean up the machinefile
-rm ./nodes.$SLURM_JOB_ID
+mpirun -np $SLURM_NTASKS ./real.exe
+mpirun -np $SLURM_NTASKS ./wrf.exe
 # Extract variables
 eval "$(conda shell.bash hook)"
 conda activate dyndown

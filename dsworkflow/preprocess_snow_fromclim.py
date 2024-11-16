@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 import xarray as xr
 import pandas as pd
+import numpy as np
 from cfgrib.xarray_to_grib import to_grib
 
 ERADIR = "/center1/DYNDOWN/cwaigl/ERA5_WRF/era5_grib"
@@ -73,6 +74,11 @@ if __name__ == "__main__":
         themonth = ds_era.isel(time=0).time.dt.month.item()
         startdatestr = f'{theyear}-{themonth}-01T00:00:00.000000000'
         startdatestr_JRA = f'1985-{themonth}-01T18:00:00.000000000'
+        if themonth == 12:      # in December we need to add Jan 1st at the end, cycling around in clim
+            janfirst = snow_jra.isel(time=1).copy()
+            janfirst.coords['time'] = np.array('1986-01-01T18:00:00.000000000', dtype='datetime64[ns]')
+            snow_jra = xr.concat(
+                [snow_jra, janfirst], dim='time')
         JRAclim_slice = snow_jra.sel(time=pd.date_range(startdatestr_JRA, freq='D', periods=numdays+1))
         JRAclim_slice.coords['time'] = pd.date_range(startdatestr, freq='D', periods=numdays+1)
         # combining

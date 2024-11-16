@@ -1,8 +1,8 @@
 #!/bin/sh
 
-#SBATCH --partition=t1small
+#SBATCH --partition=t2small
 #SBATCH --time=08:00:00
-#SBATCH --account=dyndown
+#SBATCH --account=cmip6
 #SBATCH --ntasks=56
 #SBATCH --tasks-per-node=28
 #SBATCH --mail-user=cwaigl@alaska.edu
@@ -30,7 +30,7 @@ cd $SLURM_SUBMIT_DIR
 # Create a lockfile against output moving
 touch ./.dontmove_ongoingrun
 # Launch the MPI application
-mpirun -np 16 ./real.exe
+mpirun -np $SLURM_NTASKS ./real.exe
 mpirun -np $SLURM_NTASKS ./wrf.exe
 # Extract variables
 eval "$(conda shell.bash hook)"

@@ -1,7 +1,7 @@
 #!/bin/sh
 
-#SBATCH --partition=t1small
-#SBATCH --account=dyndown
+#SBATCH --partition=t2small
+#SBATCH --account=cmip6
 #SBATCH --ntasks=56
 #SBATCH --tasks-per-node=28
 #SBATCH --mail-user=cwaigl@alaska.edu
@@ -23,6 +23,7 @@ module load slurm
 # new chinook
 module load intel-compilers/2023.1.0 iimpi/2023a 
 module load netCDF/4.9.2 netCDF-Fortran/4.6.1
+export NETCDF=/usr/local/pkg/MPI/intel/2023.1.0/impi/2021.9.0/netCDF-Fortran/4.6.1/
 # old chinook 
 # module load data/netCDF-Fortran/4.4.4-pic-intel-2016b
 

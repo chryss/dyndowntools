@@ -15,15 +15,16 @@ import argparse
 from pathlib import Path
 from functools import partial
 import urllib.request, urllib.parse
+from http.client import IncompleteRead
 from multiprocessing import Pool
 
-NUMPROC = 20
+NUMPROC = 10
+NUMTRIES = 4    # try up to 4 times to download a file
 CHUNK = 16 * 1024
 OUTDIR = "/center1/DYNDOWN/cwaigl/ERA5_WRF/era5_grib/"
-# PRODUCTURL = "https://data.rda.ucar.edu/ds633.0/"   # old: before summer 2024
-PRODUCTURL = "https://data.rda.ucar.edu/d633000/"   
+PRODUCTURL = "https://data.rda.ucar.edu/d633000/"   # since summer 2024
 VERBOSE = True
-OVERWRITE = True
+OVERWRITE = False
 
 YEAR = 2022
 MONTH = 10
@@ -91,12 +92,25 @@ def get_filelist(yr, mth):
     return filelist
 
 def read_write_chunked(url, outfile, context=None):
-        with urllib.request.urlopen(url, context=context) as infile:
-            while True:
-                chunk = infile.read(CHUNK)
-                if not chunk:
-                    break
-                outfile.write(chunk)
+    """Retrieve and write file, chunked download"""
+
+    with urllib.request.urlopen(url, context=context) as infile:
+        for chunk in iter(lambda: infile.read(CHUNK), ''):
+            if not chunk:
+                break
+            outfile.write(chunk)   
+
+def read_write_SSLorNot(url, outfile):
+    try: 
+        read_write_chunked(url, outfile)
+    except ssl.SSLError as error:
+        # if we get a certificate error, we don't check the cert
+        print(f"An error occurred: {error}")
+        print(f"Trying without cert checking.")
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        read_write_chunked(url, outfile, context=ctx)
 
 def process_file(outpath, fileID):
     outpath.mkdir(parents=True, exist_ok=True)
@@ -112,17 +126,18 @@ def process_file(outpath, fileID):
     if (not outfp.exists() or OVERWRITE):
         if (VERBOSE):
             sys.stdout.write(f"... downloading {ofile} to {outpath}.\n")
-        with open(outfp, "wb") as outfile:
+        for ii in range(NUMTRIES):
             try: 
-                read_write_chunked(url, outfile)
-            except ssl.SSLError as error:
-                # if we get a certificate error, we don't check the cert
-                print(f"An error occurred: {error}")
-                print(f"Trying without cert checking.")
-                ctx = ssl.create_default_context()
-                ctx.check_hostname = False
-                ctx.verify_mode = ssl.CERT_NONE
-                read_write_chunked(url, outfile, context=ctx)
+                with open(outfp, "wb") as outfile:
+                    read_write_SSLorNot(url, outfile)
+                break
+            except IncompleteRead:
+                if ii == NUMTRIES-1:
+                    print(f"Attempt {ii+1} to download {url} failed. This failutre is fatal.")
+                    raise       # give up after NUMTRIES attempts
+                print(f"Attempt {ii+1} to download {url} failed. Retrying.")
+                with open(outfp, "wb") as outfile:
+                    read_write_SSLorNot(url, outfile)
         if (VERBOSE):
             sys.stdout.write(f"Done with {ofile}.\n")
     else:
