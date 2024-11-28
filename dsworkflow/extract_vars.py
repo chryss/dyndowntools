@@ -62,6 +62,8 @@ def get_args():
     args.wrfdir = Path(args.wrfdir)
     if args.outdir is None:
         args.outdir = args.wrfdir
+    else:
+        args.outdir = Path(args.outdir)
     if args.yrmd is None:
         yrstr = args.wrfdir.stem
         if int(yrstr[:2]) > 39:
