@@ -21,7 +21,7 @@ NUMPROC = 20
 CHUNK = 16 * 1024
 OUTPATH_test = Path("../../working/")
 OUTPATH = Path("/center1/DYNDOWN/cwaigl/ERA5_WRF/jra55_grib/")
-PRODUCTURL = "https://data.rda.ucar.edu/ds628.0/"
+PRODUCTURL = "https://data.rda.ucar.edu/d628000/"
 VERBOSE = True
 OVERWRITE = False
 
