@@ -20,6 +20,8 @@ from multiprocessing import Pool
 
 NUMPROC = 10
 NUMTRIES = 4    # try up to 4 times to download a file
+GETNETCDF = True
+SKIPSNOW = True
 CHUNK = 16 * 1024
 OUTDIR = "/center1/DYNDOWN/cwaigl/ERA5_WRF/era5_grib/"
 PRODUCTURL = "https://data.rda.ucar.edu/d633000/"   # since summer 2024
@@ -29,10 +31,11 @@ OVERWRITE = False
 YEAR = 2022
 MONTH = 10
 folder = "e5.oper.an.pl"
+
 varsets_folders = {
     "e5.oper.an.pl" : {
         "ll025sc": [
-            '128_129_z', '128_130_t',  '128_157_r', 
+            '128_129_z', '128_130_t',  '128_157_r', '128_133_q',
         ],
         "ll025uv": [
             '128_131_u', '128_132_v',
@@ -42,14 +45,20 @@ varsets_folders = {
         "ll025sc": [
             '128_031_ci', '128_032_asn', '128_033_rsn', '128_034_sstk', '128_039_swvl1',
             '128_040_swvl2', '128_041_swvl3', '128_042_swvl4', '128_134_sp', '128_139_stl1',
-            '128_141_sd', '128_151_msl', '128_165_10u', '128_166_10v', '128_167_2t', 
+            '128_151_msl', '128_165_10u', '128_166_10v', '128_167_2t', 
             '128_168_2d', '128_170_stl2', '128_183_stl3', '128_235_skt', '128_236_stl4' ,
         ],
     },
 }
+if not SKIPSNOW:
+    varsets_folders["e5.oper.an.sfc"]["ll025sc"].append('128_141_sd')
 listoffiles = []
 # listoffiles=["e5.oper.an.sfc/202112/e5.oper.an.sfc.128_141_sd.ll025sc.2021120100_2021123123.grb",
             #  "e5.oper.an.sfc/202112/e5.oper.an.sfc.128_151_msl.ll025sc.2021120100_2021123123.grb"]
+if GETNETCDF:
+    EXT = "nc"
+else:
+    EXT = "grb"
 
 def parse_arguments():
     """Parse arguments"""
@@ -64,7 +73,7 @@ def parse_arguments():
     return parser.parse_args()
 
 def get_localpth(mthstr, firsthr, lasthr, folder, varclass, varname):
-    return f"{folder}/{mthstr}/{folder}.{varname}.{varclass}.{firsthr}_{lasthr}.grb"
+    return f"{folder}/{mthstr}/{folder}.{varname}.{varclass}.{firsthr}_{lasthr}.{EXT}"
 
 def get_monthstr(yr, mth):
     return f"{str(yr)}{str(mth).zfill(2)}"

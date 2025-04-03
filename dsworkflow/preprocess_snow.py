@@ -3,7 +3,15 @@
 import argparse
 from pathlib import Path
 import xarray as xr
-from cfgrib.xarray_to_grib import to_grib
+
+FORMAT = 'NETCDF'
+# set format specific parameters
+ENGINE = 'netcdf4'
+EXT = 'nc'
+if FORMAT == 'GRB':
+    from cfgrib.xarray_to_grib import to_grib 
+    ENGINE = 'cfgrib'
+    EXT = 'grb'
 
 ERADIR = "/center1/DYNDOWN/cwaigl/ERA5_WRF/era5_grib"
 JRADIR = "/center1/DYNDOWN/cwaigl/ERA5_WRF/jra55_grib"
@@ -52,7 +60,7 @@ if __name__ == "__main__":
     else:
         infix='automask_'
 
-    for fpth in (erapth / args.yrmonth).glob(f"{ERAPREFIX}*.grb"):
+    for fpth in (erapth / args.yrmonth).glob(f"{ERAPREFIX}*.{EXT}"):
         calendarstr_jra55 = fpth.stem[-21:-2] + "18"
         yrstr = calendarstr_jra55[:4]
         if int(yrstr) < 2014:       # before 2014, JRA55 data comes in yearly files
@@ -60,8 +68,11 @@ if __name__ == "__main__":
         jra55path = jrapth / f"{JRAPREFIX}{calendarstr_jra55}"
         with xr.open_dataset(jra55path, engine="cfgrib") as src:
             snow_jra = src.sd
-        ds_era = xr.open_dataset(fpth, engine="cfgrib")
-        sd = ds_era.sd
+        ds_era = xr.open_dataset(fpth, engine=ENGINE)
+        if FORMAT == 'GRB':
+            sd = ds_era.sd
+        else:
+            sd = ds_era.SD
         if args.mask or not args.single:
             print("using supplied mask")
             sd = sd.where(glaciermask==0)
@@ -72,5 +83,8 @@ if __name__ == "__main__":
             snow_jra.fillna(0).interp_like(
             ds_era, method='linear') / 1000)
         ds_era['sd'] = combined_DS
-        to_grib(ds_era, erapth / args.yrmonth / (f"synth_{infix}" + fpth.name))
+        if FORMAT == 'GRB':
+            to_grib(ds_era, erapth / args.yrmonth / (f"synth_{infix}" + fpth.name))
+        else:
+            ds_era.to_netcdf(erapth / args.yrmonth / (f"synth_{infix}" + fpth.name), engine=ENGINE)
         ds_era.close()
