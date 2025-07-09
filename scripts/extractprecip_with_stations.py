@@ -26,7 +26,7 @@ outdir = projdir / "evaluation/working"
 datadir = Path(f"/import/SNAP/cwaigl/wrf_era5")
 
 # settings for years and location 
-teststation = 'ANCHORAGE TED STEVENS INTERNATIONAL AIRPORT'
+teststation = 'BETHEL AIRPORT'
 startyear = 1970
 endyear = 2020
 timezoneoffset = -9  # h for Alaska Standard Time vs UTC 
