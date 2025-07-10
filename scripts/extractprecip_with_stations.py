@@ -26,12 +26,18 @@ outdir = projdir / "evaluation/working"
 datadir = Path(f"/import/SNAP/cwaigl/wrf_era5")
 
 # settings for years and location 
-teststation = 'BETHEL AIRPORT'
+teststations = [
+    "ANCHORAGE TED STEVENS INTERNATIONAL AIRPORT",
+    "BARROW AIRPORT",
+    "CORDOVA AIRPORT",
+    "EAGLE AIRPORT",
+    "JUNEAU AIRPORT"
+]
 startyear = 1970
 endyear = 2020
 timezoneoffset = -9  # h for Alaska Standard Time vs UTC 
 var = 'precip'
-outfilepatt = f"{var}_{teststation.replace(' ','_')}_{startyear}_{endyear}"
+
 
 # settings for downscaled ERA5 files
 resolutions = [4, 12]         # 4 or 12 km
@@ -92,10 +98,9 @@ def process_file_at_loc(filepath, x=100, y=100):
         del src
     return rain
 
-def main():
+def process_station(teststation, stations):
+    outfilepatt = f"{var}_{teststation.replace(' ','_')}_{startyear}_{endyear}"
     logger.info(f"Working on precip data for {teststation}")
-    start_time = time.perf_counter()
-    stations = getweatherstationlist()
     weatherstationDFs = getweatherstationdata(stations)
 
     # precipdata from ACIS
@@ -142,10 +147,16 @@ def main():
             curr_time_end = time.perf_counter()
             elapsed_time = curr_time_end - curr_time_start 
         logger.info(f"Extraction for precip {res} km, {startyear}-{endyear}: {elapsed_time:.4f} seconds")
-    
+
+def main():
+    logger.info("Getting precipitation data for {','.join(teststations)}")
+    start_time = time.perf_counter()
+    stations = getweatherstationlist()
+    for teststation in teststations:
+        process_station(teststation, stations)
     curr_time_end = time.perf_counter()
     elapsed_time = curr_time_end - start_time
-    logger.info(f"Total run time: {elapsed_time:.4f} seconds")
+    logger.info(f"Total run time: {elapsed_time:.4f} seconds for {len(stations)} locations.")
 
 if __name__ == '__main__':
     main()
