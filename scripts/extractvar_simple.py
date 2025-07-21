@@ -15,7 +15,7 @@ READAPPROACHES = {
     3: "loop",
     4: "joblib"
 }
-READAPPROACH = 4
+READAPPROACH = 4        # after testing, this seems to be working the smoothest
 
 logger = logging.getLogger(__name__)
 logger.setLevel('INFO')
@@ -34,13 +34,14 @@ outdir = projdir / "evaluation/working"
 datadir = Path(f"/import/SNAP/cwaigl/wrf_era5")
 
 # settings for years and location 
-lat, lon = 64.80309, -147.87605     # Fairbanks, PAFA station as per ACIS
-locname = 'FAI_PAFA'
+lon, lat = -156.73938,71.28703     #  station as per ACIS
+locname = 'UTQ_PABR'
+DAILY = False
 startyear = 1980
-endyear = 2020
-timezoneoffset = -9  # h for Alaska Standard Time vs UTC 
-var = 'precip'
-outfilepatt = f"{var}_{locname.replace(' ','_')}_{startyear}_{endyear}"
+endyear = 2019
+vars = ['wspd10', 'wdir10']
+varlabel = 'wind'
+outfilepatt = f"{varlabel}_{locname.replace(' ','_')}_{startyear}_{endyear}"
 
 # settings for downscaled ERA5 files
 resolutions = [4, 12]         # 4 or 12 km or both
@@ -53,17 +54,13 @@ def getXY(lat, lon, dataarray):
     ([yloc], [xloc]) = np.where(d == np.min(d))
     return xloc, yloc
 
-def getdates(station, stationDFs, startyr, endyr):
-    dates = stationDFs[station].index.strftime('%Y-%m-%d').to_list()
-    return [item for item in dates if int(item[:4]) in range(startyr, endyr+1)] + [f'{endyr+1}-01-01']
-
 def process_file_at_loc(filepath, x=100, y=100):
     with xr.open_dataset(filepath, engine='netcdf4') as src:
-        rain = (src.rainnc + src.rainc).isel(
+        var = src[vars].isel(
             south_north=y, west_east=x).load().drop_vars(['XLAT', 'XLONG', 'XTIME'])
         src.close()
         del src
-    return rain
+    return var
     
 def preprocess_ds_at_loc(ds, x=100, y=100):
     return (ds.rainnc + ds.rainc).isel(south_north=y, west_east=x).drop_vars(['XLAT', 'XLONG', 'XTIME'])
@@ -104,13 +101,13 @@ def main():
                         parallel_results = pool.map(process_file, filepaths, 3)
                         # pool.close()
                         # pool.join()
-                    all_rain = xr.concat(parallel_results, dim='Time').to_dataframe(name=f'precip_mm_ERA5_{res}km')
+                    all_var = xr.concat(parallel_results, dim='Time').to_dataframe(name=f'{varlabel}_ERA5_{res}km')
                 case 2:
                     from dask.distributed import Client
                     client = Client(n_workers=NUMBER_OF_CORES, memory_limit='10GB')
-                    all_rain = xr.open_mfdataset(filepaths, parallel=True, engine='netcdf4',
+                    all_var = xr.open_mfdataset(filepaths, parallel=True, engine='netcdf4',
                             preprocess=partial(preprocess_ds_at_loc, x=xloc, y=yloc))
-                    all_rain = all_rain.to_dataframe(name=f'precip_mm_ERA5_{res}km')
+                    all_var = all_var.to_dataframe(name=f'{varlabel}_ERA5_{res}km')
                     client.shutdown()
                 case 3:
                     results = []
@@ -118,17 +115,18 @@ def main():
                         logger.debug(ii)
                         rain = process_file_at_loc(pth, xloc, yloc)
                         results.append(rain) 
-                    all_rain = xr.concat(results, dim='Time').to_dataframe(name=f'precip_mm_ERA5_{res}km')
+                    all_var = xr.concat(results, dim='Time').to_dataframe(name=f'{varlabel}_ERA5_{res}km')
                 case 4:
                     from joblib import Parallel, delayed
                     results = Parallel(n_jobs=NUMBER_OF_CORES)(
                         delayed(partial(process_file_at_loc, x=xloc, y=yloc))(pth) for pth in filepaths)
-                    all_rain = xr.concat(results, dim='Time').to_dataframe(name=f'precip_mm_ERA5_{res}km')
-            all_rain = all_rain.resample('D').sum()
+                    all_var = xr.concat(results, dim='Time').to_dataframe()
+            if DAILY:
+                all_var = all_var.resample('D').sum()
 
             logger.info(f"Writing/appending to {outfn}")
             with open(outdir / outfn, 'a', newline='') as dst:
-                all_rain.to_csv(dst, float_format='%.3f', header=dst.tell()==0)
+                all_var.to_csv(dst, float_format='%.3f', header=dst.tell()==0)
 
             curr_time_end = time.perf_counter()
             elapsed_time = curr_time_end - curr_time_start 
