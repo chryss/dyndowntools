@@ -26,9 +26,9 @@ outdir = projdir / "evaluation/working"
 datadir = Path(f"/import/SNAP/cwaigl/wrf_era5")
 
 # settings for years and location 
-teststation = 'FAIRBANKS INTL AP'
-startyear = 1951
-endyear = 1970
+teststation = 'BETHEL AIRPORT'
+startyear = 1970
+endyear = 2020
 timezoneoffset = -9  # h for Alaska Standard Time vs UTC 
 var = 'precip'
 outfilepatt = f"{var}_{teststation.replace(' ','_')}_{startyear}_{endyear}"
