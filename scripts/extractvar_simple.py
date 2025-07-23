@@ -34,8 +34,8 @@ outdir = projdir / "evaluation/working"
 datadir = Path(f"/import/SNAP/cwaigl/wrf_era5")
 
 # settings for years and location 
-lon, lat = -156.73938,71.28703     #  station as per ACIS
-locname = 'UTQ_PABR'
+lon, lat = -161.82932,60.78497     #  station as per ACIS
+locname = 'BTH_PABE'
 DAILY = False
 startyear = 1980
 endyear = 2019
