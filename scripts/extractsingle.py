@@ -33,7 +33,7 @@ outdir = projdir / "evaluation/working"
 # datadir = Path(f"/import/beegfs/CMIP6/wrf_era5/")
 datadir = Path(f"/import/SNAP/cwaigl/wrf_era5")
 
-# settings for years and location 
+# settings for getting station related parameters
 lat, lon = 64.80309, -147.87605     # Fairbanks, PAFA station as per ACIS
 locname = 'FAI_PAFA'
 startyear = 1980

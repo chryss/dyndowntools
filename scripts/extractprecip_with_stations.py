@@ -134,7 +134,7 @@ def process_station(teststation, stations):
             results = Parallel(n_jobs=NUMBER_OF_CORES)(
                 delayed(process_file)(pth) for pth in filepaths)
             all_rain = xr.concat(results, dim='Time').to_dataframe(name=f'precip_mm_ERA5_{res}km')
-            all_rain.index = all_rain.index + dt.timedelta(hours=-9)
+            all_rain.index = all_rain.index + dt.timedelta(hours=timezoneoffset)
             all_rain = all_rain.resample('D').sum()
             # put it together
             compDF = all_rain[1:-1].merge(precipDF[f'{yr}-01-01':f'{yr}-12-31'], left_index=True, right_index=True )
