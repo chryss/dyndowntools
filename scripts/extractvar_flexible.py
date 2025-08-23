@@ -34,35 +34,32 @@ outdir = projdir / "evaluation/working"
 datadir = Path(f"/import/SNAP/cwaigl/wrf_era5")
 
 # settings for station related parameters
-weatherstationlist = projdir / "evaluation/auxdata/ACIS_stations.csv"
-locnames = {
-    'PAFA': 'FAI',
-    'PANC': 'ANC',
-    'PABR': 'UTQ',
-    # 'PABE': 'BTH'
+locs = {        # name: (lon, lat)
+    'Sutton': (-148.89, 61.71),
+    'Valdez': (-146.35, 61.14),
 }
-DAILY = True
-startyear = 1981
-endyear = 2020
+DAILY = False
+startyear = 2014
+endyear = 2015
 timezoneoffset = -9
-vars = ['T2']
-aggs = ['max', 'mean']
-varname = 't2m'
+vars = ['T2', 'acsnow', 'SNOW']
+aggs = None
+varname = 'snowvars_forTB'
 
 # settings for downscaled ERA5 files
-resolutions = [4, 12]         # 4 or 12 km or both
+resolutions = [4]         # 4 or 12 km or both
 
 class stationNotFoundException(Exception):
     """Custom exception for skipping over unavailable stations"""
     pass
 
-def remove_outfiles(station, res, daily=DAILY):
+def remove_outfiles(loc, res, daily=DAILY):
     outfilepatts = []
     if daily:
         for aggscheme in aggs:
-            outfilepatts.append(f"{varname}_{aggscheme}_{locnames[station]}_{station}_{startyear}_{endyear}")
+            outfilepatts.append(f"{varname}_{aggscheme}_{loc}_{startyear}_{endyear}")
     else:
-        outfilepatts = [f"{varname}_{locnames[station]}_{station}_{startyear}_{endyear}"]
+        outfilepatts = [f"{varname}_{loc}_{startyear}_{endyear}"]
     for outfilepatt in outfilepatts:
         outfn = f"{outfilepatt}_{res}km.csv"
         (outdir / outfn).unlink(missing_ok=True)
@@ -74,9 +71,6 @@ def getXY(lat, lon, dataarray):
     d = abslon**2 + abslat**2
     ([yloc], [xloc]) = np.where(d == np.min(d))
     return xloc, yloc
-
-def getweatherstationlist():
-    return pd.read_csv(weatherstationlist)
 
 def getlatlon(station, stationDF, lon360=True):
     lat = stationDF[stationDF.icao == station].latitude.item()
@@ -105,22 +99,15 @@ def writetofile(dataDF, outfn):
     with open(outdir / outfn, 'a', newline='') as dst:
         dataDF.to_csv(dst, float_format='%.3f', header=dst.tell()==0)
 
-def process_station(station):
-    stationname = locnames[station]
-    logger.info(f"Working on {varname} data for {station}")
-
-    allstations = getweatherstationlist()
-    try:
-        lat, lon = getlatlon(station, allstations, lon360=False)
-    except ValueError:
-        print(f"Cannot get location of {station}. Check whether it is present in station list.")
-        raise stationNotFoundException("Station not found, continuing to next")
+def process_location(location):
+    logger.info(f"Working on {varname} data for {location}")
+    lon, lat = locs[location]
 
     years = range(startyear, endyear+1)
     for res in resolutions:
         curr_time_start = time.perf_counter() 
-        logger.info(f"getting {varname} ERA5 data for {res} km at {station}: {lat}, {lon}")
-        remove_outfiles(station, res, daily=DAILY)
+        logger.info(f"getting {varname} ERA5 data for {res} km at {location}: {lat}, {lon}")
+        remove_outfiles(location, res, daily=DAILY)
         xloc, yloc = None, None
         filepattern = f"era5_wrf_dscale_{res}km"
         thisdatadir = datadir / f"{str(res).zfill(2)}km/"
@@ -166,7 +153,7 @@ def process_station(station):
             all_var.index = all_var.index + dt.timedelta(hours=timezoneoffset)
             if DAILY:
                 for aggscheme in aggs:
-                    outfilepatt = f"{varname}_{aggscheme}_{stationname}_{station}_{startyear}_{endyear}"
+                    outfilepatt = f"{varname}_{aggscheme}_{location}_{startyear}_{endyear}"
                     outfn = f"{outfilepatt}_{res}km.csv"
                     # (outdir / outfn).unlink(missing_ok=True)
                     match aggscheme:
@@ -184,8 +171,9 @@ def process_station(station):
                     else:
                         writetofile(data_out, outfn)
             else:
-                outfilepatt = f"{varname}_{stationname}_{station}_{startyear}_{endyear}"
+                outfilepatt = f"{varname}_{location}_{startyear}_{endyear}"
                 outfn = f"{outfilepatt}_{res}km.csv"
+                # (outdir / outfn).unlink(missing_ok=True)
                 writetofile(all_var, outfn)
             curr_time_end = time.perf_counter()
             elapsed_time = curr_time_end - curr_time_start 
@@ -194,12 +182,8 @@ def process_station(station):
 def main():
     start_time = time.perf_counter()
 
-    for station in locnames:
-        try:
-            process_station(station)
-        except stationNotFoundException as e:
-            print(e)
-            continue
+    for location in locs:
+        process_location(location)
 
     curr_time_end = time.perf_counter()
     elapsed_time = curr_time_end - start_time
