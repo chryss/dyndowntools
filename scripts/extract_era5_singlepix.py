@@ -11,7 +11,7 @@ from pathlib import Path
 import xarray as xr
 import pandas as pd
 
-startyr = 1981
+startyr = 1980
 endyr = 2020
 projdir = Path().resolve().parents[0]
 outdir = projdir / "evaluation/working"
@@ -25,10 +25,9 @@ locnames = {
     'PABE': 'BTH'
 }
 vars = [
-    't2m',
-    'tp',
-    'u10',
-    'v10',
+    # 't2m',
+    # 'tp',
+    'wspd10',
     ]
 
 def _is_valid_lonlat(argstring):
