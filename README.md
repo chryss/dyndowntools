@@ -1,6 +1,6 @@
 # dyndowntools
 
-Code created for dynamical downscaling project, IARC/CASC 2022-2024
+Code created for dynamical downscaling project, IARC/CASC 2022-2025
 Chris Waigl - cwaigl@alaska.edu
 
 ## Overview
