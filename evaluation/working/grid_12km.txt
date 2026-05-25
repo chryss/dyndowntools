@@ -1,0 +1,9 @@
+#
+# gridID 1
+#
+gridtype  = generic
+gridsize  = 53856
+xsize     = 264
+ysize     = 204
+xdimname  = west_east
+ydimname  = south_north
