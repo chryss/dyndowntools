@@ -5,15 +5,25 @@ Chris Waigl - cwaigl@alaska.edu
 
 ## Overview
 
-The repo's content are as follows:
+The repo is organized around three task areas under `tasks/`, plus shared/cross-cutting code at the root:
 
+ - `tasks/dsworkflow/`: the code that orchestrates all aspects of the downscaling process (see below for details)
+   - `tasks/dsworkflow/pipeline/`: the active orchestration code (formerly top-level `dsworkflow/`)
+   - `tasks/dsworkflow/legacy/`: previous iterations of workflow code, some inherited from others (formerly top-level `dsworkflow_legacy/`)
+   - `tasks/dsworkflow/dyndown_environment.yml`: environment file for the `conda` env this pipeline runs under
+   - `tasks/dsworkflow/taskcontrol.ipynb`: generates/updates `status.feather` (see Prerequisites & housekeeping below)
+ - `tasks/extraction/`: ERA5/WRF variable extraction and the wind-speed quantile/exceedance analysis (`scripts/`, `notebooks/`, `docs/`)
+ - `tasks/evaluation/`: station-comparison and regridding evaluation against ACIS/Daymet data (`scripts/`, `notebooks/`, plus the `auxdata/`, `weatherstationdata/`, `working/`, `figures/`, `archive/` data directories)
+ - `src/dyndowntools/`: the installable shared package (editable install via pixi)
  - `config/`: files relating to the domain configuration as well as miscellaneous configuration files
- - `dsworkflow/`: the code that orchestrates all aspects of the downscaling process (see below for details)
- - `dsworkflow_legacy/`: previous iterations of workflow code, some inherited from others
- - `dyndowntools/`: placeholder for importable package
- - `Jupyter_Notebooks/`: exploratory or analysis code, as well as visualizations, to be run interactively
- - `scripts/`: stand-alone scripts
- - `dyndown_environment.yml`: environment file for `conda`
+ - `Jupyter_Notebooks/`: cross-cutting exploratory notebooks not specific to one task area (case studies, snow/precip prototyping, visualization utilities)
+
+One-time setup per clone: notebooks are kept output-light via an `nb-clean` git filter. Run once:
+```
+git config filter.nb-clean.clean 'pixi run nb-clean clean --remove-empty-cells --preserve-cell-outputs'
+git config filter.nb-clean.required true
+```
+(the `.gitattributes` mapping itself is tracked; the filter *command* is not, by git's design, so this one line is needed per clone.)
 
 ## Workflow components
 
@@ -104,6 +114,6 @@ So the overall recipe for running production is as follows:
 
 ### 6. Prerequisites & housekeeping
 
-The scripts presume the availability of a conda environment named `dyndown` with all the required Python dependencies installed. Use the provided `dyndown_environment.yml` file to install such an environment. Also, modules and paths are specific to the HPC environment `chinook` provided by the University of Alaska Fairbanks Research Computing Systems team. 
+The scripts presume the availability of a conda environment named `dyndown` with all the required Python dependencies installed. Use the provided `tasks/dsworkflow/dyndown_environment.yml` file to install such an environment. Also, modules and paths are specific to the HPC environment `chinook` provided by the University of Alaska Fairbanks Research Computing Systems team. This is a separate environment from the pixi-managed one used by the rest of the repo (`tasks/extraction/`, `tasks/evaluation/`).
 
-The mapping of datestamps for WRF runs to WPS folders is managed via the file `status.feather` in the `status/` folder. It can be generated and updated for the desired daterange using the `taskcontrol.ipynb` Jupyter Notebook. 
+The mapping of datestamps for WRF runs to WPS folders is managed via the file `status.feather` in the `status/` folder. It can be generated and updated for the desired daterange using the `tasks/dsworkflow/taskcontrol.ipynb` Jupyter Notebook. 

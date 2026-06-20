@@ -1,2 +1,6 @@
 # SCM syntax highlighting & preventing 3-way merges
 pixi.lock merge=binary linguist-language=YAML linguist-generated=true
+
+# Strip empty cells from notebooks on commit (run `git config filter.nb-clean.clean
+# "pixi run nb-clean clean --remove-empty-cells --preserve-cell-outputs"` once per clone)
+*.ipynb filter=nb-clean
