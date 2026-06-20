@@ -24,7 +24,7 @@ GETNETCDF = True
 SKIPSNOW = True
 CHUNK = 16 * 1024
 OUTDIR = "/center1/DYNDOWN/cwaigl/ERA5_WRF/era5_grib/"
-PRODUCTURL = "https://data.rda.ucar.edu/d633000/"   # since summer 2024
+PRODUCTURL = "https://osdf-director.osg-htc.org/ncar/gdex/d633000/"   # since late 2025
 VERBOSE = True
 OVERWRITE = False
 
