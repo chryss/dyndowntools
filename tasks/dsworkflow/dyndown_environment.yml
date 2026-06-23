@@ -5,25 +5,14 @@ channels:
 dependencies:
   - python
   - python-dotenv
-  - cartopy
-  - gdal
   - wrf-python
+  - cfgrib
   - python-cdo
-  - geopandas
-  - rioxarray
-  - ipywidgets
+  - xarray
+  - numpy
+  - pandas
+  - netCDF4
   - jupyterlab
   - nb-clean
   - pylint
-  - pytest
-  - requests
-  - seaborn
-  - siphon
-  - wget
-  - dask
-  - cfgrib
   - flake8
-  - pip
-  - pip:
-    - "--editable git@github.com:AlaskaFireWeather/fiweps.git"
-  

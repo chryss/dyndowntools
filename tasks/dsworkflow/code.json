@@ -1,0 +1,46 @@
+[
+  {
+    "name": "REPOSITORY_NAME",
+    "organization": "U.S. Geological Survey",
+    "description": "Dynamically downscaled ERA5 reanalysis data for Alaska, at 4 km and 12 km spatial resolution",
+    "version": "0.9.0",
+    "status": "preliminary",
+
+    "permissions": {
+      "usageType": "openSource",
+      "licenses": [
+        {
+          "name": "Public Domain, CC0-1.0",
+          "URL": "https://github.com/usgs/REPOSITORY_NAME/blob/master/LICENSE.md"
+        }
+      ]
+    },
+
+    "homepageURL": "https://usgs.github.io/REPOSITORY_NAME/",
+    "downloadURL": "https://github.com/usgs/REPOSITORY_NAME/archive/master.zip",
+    "disclaimerURL": "https://github.com/usgs/REPOSITORY_NAME/blob/master/LICENSE.md",
+    "repositoryURL": "https://github.com/usgs/REPOSITORY_NAME.git",
+    "vcs": "git",
+
+    "laborHours": 0,
+
+    "tags": [
+      "TAG_1",
+      "TAG_2"
+    ],
+
+    "languages": [
+      "python",
+      "bash"
+    ],
+
+    "contact": {
+      "name": "Christine F Waigl",
+      "email": "cwaigl@alaska.edu"
+    },
+
+    "date": {
+      "metadataLastUpdated": "2026-06-22"
+    }
+  }
+]
