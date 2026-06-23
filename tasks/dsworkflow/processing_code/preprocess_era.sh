@@ -17,8 +17,8 @@ MONTHDIR=${1:-"202212"}
 SCRIPTDIR=`pwd`
 
 # preprocess snow
-# python preprocess_snow.py -m ${MONTHDIR}  # use starting Sep 1958
-python preprocess_snow_fromclim.py -m ${MONTHDIR}  # use up to Aug 1958
+python preprocess_snow.py -m ${MONTHDIR}  # use starting Sep 1958
+# python preprocess_snow_fromclim.py -m ${MONTHDIR}  # use up to Aug 1958
 
 cd ${BASEDIR}/era5_grib/${MONTHDIR}
 mkdir -p archive
