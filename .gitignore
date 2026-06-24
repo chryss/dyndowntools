@@ -2,7 +2,7 @@
 *DS_Store
 .vscode
 *.nc    
-dsworkflow/legacy/*
+tasks/dsworkflow_legacy/
 kerchunk_refs/
 
 # no GIS helper files
