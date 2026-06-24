@@ -8,7 +8,7 @@ Code that orchestrates all aspects of the ERA5/WRF dynamical downscaling process
  - `dyndown_environment.yml`: environment file for the `conda` env this pipeline runs under
  - `taskcontrol.ipynb`: generates/updates `status.feather` (see Prerequisites & housekeeping below)
  - `code.json`: USGS code-publication metadata for the Zenodo release
- - `LICENSE.md`: the USGS-required license for the published code
+ - `LICENSE.md`: the USGS-required CC0 license for the published code
 
 ## License
 
@@ -16,7 +16,7 @@ This code is licensed under the [Creative Commons CC0 1.0 Universal License](htt
 
 ## Citation
 
-This code is published as a companion to a manuscript's data publication. A DOI has been reserved for the first Zenodo release: [10.5281/zenodo.20808364](https://doi.org/10.5281/zenodo.20808364) (not yet resolving publicly until the deposit is published).
+This code is published as a companion to a manuscript's data publication. A DOI has been reserved for the first Zenodo release: [10.5281/zenodo.20808364](https://doi.org/10.5281/zenodo.20808364).
 
 ## Notes
 
@@ -108,7 +108,7 @@ So the overall recipe for running production is as follows:
 
   - Run `era5_download.sh [YEAR]` for the two or three years before the current status (by default, we run backwards starting in 2023). Then manually check completeness of download (by watching error messages and counting downloaded files). These checks prevent failed incomplete WPS runs that often show up only at the WRF stage, so it saves time to check initially.
   - Run `addtoqueue.py` and once satisfied, pipe the output into `status/taskqueue.txt`. This script generates a year's worth of launch commands for WPS and WRF runs. For each month, there are two WPS runs  (for `_C` and `_B` folders) and one `launch_wrf.py` command for a month's worth of WRF runs. The WPS runs go from December to January (there is an option to reverse the order and run the dataset forward in time), and the WRF runs lag 4 months behind the WPS runs, so they go from April of the previously-run (=next in time) year to May. As long as there are tasks available in `status/taskqueue.txt`, they can be picked up and executed (and removed from the queue) by `manage_queue.sh`, run on the crontab. 
-  - Once a year's worth of WRF runs is complete, check the output files in their final location. Approximately run per year typically terminates prematurely and needs to be re-run with a shorter timestep, using `launch_wrf.sh YYMMDD [WPSFOLDER] 30` (for 30s step). If entire WRF runs fail, the issue may be incomplete `met_em` files in the correspondin WPS folder, which is typically caused by incomplete downloads. 
+  - Once a year's worth of WRF runs is complete, check the output files in their final location. Approximately one run per year typically terminates prematurely and needs to be re-run with a shorter timestep, using `launch_wrf.sh YYMMDD [WPSFOLDER] 30` (for 30s step). If entire WRF runs fail, the issue may be incomplete `met_em` files in the correspondin WPS folder, which is typically caused by incomplete downloads. 
   - Once the whole year's (or at least several months) worth of output is found satisfactory and quality-checked, delete the WPS folders and original ERA5 downloads. The synthetic combined snow will have been archived off before this point automatically. 
 
 ### 6. Prerequisites & housekeeping
