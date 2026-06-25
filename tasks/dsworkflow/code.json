@@ -1,32 +1,37 @@
 [
   {
-    "name": "REPOSITORY_NAME",
-    "organization": "U.S. Geological Survey",
+    "name": "dyndown-ak-era5",
+    "organization": "International Arctic Research Center, University of Alaska Fairbanks",
     "description": "Dynamically downscaled ERA5 reanalysis data for Alaska, at 4 km and 12 km spatial resolution",
     "version": "0.9.0",
-    "status": "preliminary",
+    "status": "Release Candidate",
 
     "permissions": {
       "usageType": "openSource",
       "licenses": [
         {
           "name": "Public Domain, CC0-1.0",
-          "URL": "https://github.com/usgs/REPOSITORY_NAME/blob/master/LICENSE.md"
+          "URL": "https://github.com/usgs/dyndown-ak-era5/blob/master/LICENSE.md"
         }
       ]
     },
 
-    "homepageURL": "https://usgs.github.io/REPOSITORY_NAME/",
-    "downloadURL": "https://github.com/usgs/REPOSITORY_NAME/archive/master.zip",
-    "disclaimerURL": "https://github.com/usgs/REPOSITORY_NAME/blob/master/LICENSE.md",
-    "repositoryURL": "https://github.com/usgs/REPOSITORY_NAME.git",
+    "homepageURL": "https://usgs.github.io/dyndown-ak-era5/",
+    "downloadURL": "https://github.com/usgs/dyndown-ak-era5/archive/master.zip",
+    "disclaimerURL": "https://github.com/usgs/dyndown-ak-era5/blob/master/LICENSE.md",
+    "repositoryURL": "https://github.com/usgs/dyndown-ak-era5.git",
     "vcs": "git",
 
     "laborHours": 0,
 
     "tags": [
-      "TAG_1",
-      "TAG_2"
+      "parallel-computing",
+      "high-performance-computing",
+      "dynamical-downscaling",
+      "ERA5",
+      "climate-reanalysis",
+      "Alaska",
+      "regional-climate-modeling",
     ],
 
     "languages": [
@@ -40,7 +45,7 @@
     },
 
     "date": {
-      "metadataLastUpdated": "2026-06-22"
+      "metadataLastUpdated": "2026-06-25"
     }
   }
 ]
