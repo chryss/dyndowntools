@@ -1,16 +1,16 @@
 #!/bin/bash
 
-# environment 
-BASEDIR=/center1/DYNDOWN/cwaigl/ERA5_WRF
-SCRIPTDIR=${BASEDIR}/scripts/
-TEMPLATEDIR=${BASEDIR}/scripts/templates
+# environment
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/config.sh"
+TEMPLATEDIR="${SCRIPTDIR}/templates"
 DATELABEL=$1
 WPSLABEL=$2
 TIMESTEP=${3:-"60"}
 umask 002
 
 module load slurm
-source /home/cwaigl/.bashrc
+source "$HOME/.bashrc"
 conda activate dyndown
 
 WRFDIR=${BASEDIR}/WRF/${DATELABEL}

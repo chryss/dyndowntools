@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # environment
-source /home/cwaigl/.bashrc
+source "$HOME/.bashrc"
 module purge
 # old chinook
 # module load data/CDO/1.7.2-pic-intel-2016b
@@ -12,7 +12,8 @@ conda activate dyndown
 umask 002
 
 # constants
-BASEDIR=/center1/DYNDOWN/cwaigl/ERA5_WRF
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/config.sh"
 MONTHDIR=${1:-"202212"}
 SCRIPTDIR=`pwd`
 

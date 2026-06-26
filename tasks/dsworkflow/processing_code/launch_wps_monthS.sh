@@ -1,7 +1,8 @@
 #!/bin/bash -e
 
-# environment 
-BASEDIR=/center1/DYNDOWN/cwaigl/ERA5_WRF
+# environment
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/config.sh"
 MONTHLABEL=$1
 SCRIPTDIR=$(pwd)
 umask 002
@@ -9,11 +10,11 @@ umask 002
 module purge
 module load slurm
 # new chinook
-module load intel-compilers/2023.1.0 iimpi/2023a 
+module load intel-compilers/2023.1.0 iimpi/2023a
 module load netCDF/4.9.2 netCDF-Fortran/4.6.1
-# old chinook 
+# old chinook
 # module load data/netCDF-Fortran/4.4.4-pic-intel-2016b
-source /home/cwaigl/.bashrc
+source "$HOME/.bashrc"
 conda activate dyndown
 
 # First of all generate a link directory for month 

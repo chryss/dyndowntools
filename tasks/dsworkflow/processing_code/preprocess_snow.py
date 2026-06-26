@@ -3,18 +3,19 @@
 import argparse
 from pathlib import Path
 import xarray as xr
+import workflowutil as wu
 
 FORMAT = 'NETCDF'
 # set format specific parameters
 ENGINE = 'netcdf4'
 EXT = 'nc'
 if FORMAT == 'GRB':
-    from cfgrib.xarray_to_grib import to_grib 
+    from cfgrib.xarray_to_grib import to_grib
     ENGINE = 'cfgrib'
     EXT = 'grb'
 
-ERADIR = "/center1/DYNDOWN/cwaigl/ERA5_WRF/era5_grib"
-JRADIR = "/center1/DYNDOWN/cwaigl/ERA5_WRF/jra55_grib"
+ERADIR = str(wu.ERA_INPUT_DIR)
+JRADIR = str(wu.JRA55_INPUT_DIR)
 MASKDIR = "masks"
 MASKFN = "glaciermask_thresh_1.0m_dilate1.nc"
 ERAPREFIX = "e5.oper.an.sfc.128_141_sd.ll025sc."

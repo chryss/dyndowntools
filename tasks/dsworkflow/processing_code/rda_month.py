@@ -17,14 +17,15 @@ from functools import partial
 import urllib.request, urllib.parse
 from http.client import IncompleteRead
 from multiprocessing import Pool
+import workflowutil as wu
 
 NUMPROC = 10
 NUMTRIES = 4    # try up to 4 times to download a file
 GETNETCDF = True
 SKIPSNOW = True
 CHUNK = 16 * 1024
-OUTDIR = "/center1/DYNDOWN/cwaigl/ERA5_WRF/era5_grib/"
-PRODUCTURL = "https://osdf-director.osg-htc.org/ncar/gdex/d633000/"   # since late 2025
+OUTDIR = str(wu.ERA_INPUT_DIR)
+PRODUCTURL = wu.ERA5_PRODUCTURL
 VERBOSE = True
 OVERWRITE = False
 

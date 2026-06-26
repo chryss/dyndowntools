@@ -1,9 +1,10 @@
 #!/bin/bash
 
-SCRIPTDIR=/center1/DYNDOWN/cwaigl/ERA5_WRF/scripts
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/config.sh"
 
 # environment
-source /home/cwaigl/.bashrc
+source "$HOME/.bashrc"
 module purge
 module load slurm
 conda activate dyndown

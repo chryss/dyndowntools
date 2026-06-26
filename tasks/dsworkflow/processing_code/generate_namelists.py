@@ -4,8 +4,9 @@ import argparse
 from pathlib import Path
 import datetime as dt
 import calendar
+import workflowutil as wu
 
-BASEDIR = "/center1/DYNDOWN/cwaigl/ERA5_WRF/"
+BASEDIR = wu.BASEDIR
 
 def parse_date(date_str):
     """Parse YYMMDD"""

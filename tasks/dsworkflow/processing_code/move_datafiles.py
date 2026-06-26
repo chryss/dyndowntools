@@ -3,8 +3,9 @@ import argparse
 import sys
 import shutil
 import datetime as dt
+import workflowutil as wu
 
-WRFDIR = "/center1/DYNDOWN/cwaigl/ERA5_WRF/WRF/"
+WRFDIR = str(wu.WRF_DIR)
 OUTSUBDIR = 'staging'
 LOCK = "move_local.lock"
 LOCKDIR = "status"

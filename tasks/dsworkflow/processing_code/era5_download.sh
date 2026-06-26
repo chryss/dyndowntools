@@ -1,12 +1,13 @@
 #!/bin/bash
 
-# environment 
-BASEDIR=/center1/DYNDOWN/cwaigl/ERA5_WRF
+# environment
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/config.sh"
 SCRIPTDIR=$(pwd)
 # LOGFILE=${$BASEDIR}/
 umask 002
 
-source /home/cwaigl/.bashrc
+source "$HOME/.bashrc"
 conda activate dyndown
 
 # constants

@@ -1,11 +1,12 @@
 #!/bin/bash
 
-SCRIPTDIR=/center1/DYNDOWN/cwaigl/ERA5_WRF/scripts
-DATADIR=/center1/DYNDOWN/cwaigl/ERA5_WRF/WRF/staging
-TARGETDIR=/import/SNAP/cwaigl/wrf_era5
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/config.sh"
+DATADIR="${BASEDIR}/WRF/staging"
+TARGETDIR="${WRF_ARCHIVE_DIR}"
 
 # environment
-source /home/cwaigl/.bashrc
+source "$HOME/.bashrc"
 module purge
 conda activate dyndown
 umask 002

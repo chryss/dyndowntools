@@ -6,9 +6,10 @@ import xarray as xr
 import pandas as pd
 import numpy as np
 from cfgrib.xarray_to_grib import to_grib
+import workflowutil as wu
 
-ERADIR = "/center1/DYNDOWN/cwaigl/ERA5_WRF/era5_grib"
-JRADIR = "/center1/DYNDOWN/cwaigl/ERA5_WRF/jra55_grib"
+ERADIR = str(wu.ERA_INPUT_DIR)
+JRADIR = str(wu.JRA55_INPUT_DIR)
 MASKDIR = "masks"
 MASKFN = "glaciermask_thresh_1.0m_dilate1.nc"
 ERAPREFIX = "e5.oper.an.sfc.128_141_sd.ll025sc."

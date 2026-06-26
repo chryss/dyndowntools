@@ -6,7 +6,7 @@ import datetime as dt
 import pandas as pd
 import workflowutil as wu
 
-BASEDIR = "/center1/DYNDOWN/cwaigl/ERA5_WRF/"
+BASEDIR = wu.BASEDIR
 TESTING = False   
 
 def parse_arguments():

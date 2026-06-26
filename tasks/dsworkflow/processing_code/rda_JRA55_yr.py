@@ -14,14 +14,14 @@ import time
 from pathlib import Path
 import urllib.request, urllib.parse
 import http.cookiejar
-from dotenv import load_dotenv
 from multiprocessing import Pool
+import workflowutil as wu
 
 NUMPROC = 20
 CHUNK = 16 * 1024
 OUTPATH_test = Path("../../working/")
-OUTPATH = Path("/center1/DYNDOWN/cwaigl/ERA5_WRF/jra55_grib/")
-PRODUCTURL = "https://data.rda.ucar.edu/d628000/"
+OUTPATH = wu.JRA55_INPUT_DIR
+PRODUCTURL = wu.JRA55_PRODUCTURL
 VERBOSE = True
 OVERWRITE = False
 
