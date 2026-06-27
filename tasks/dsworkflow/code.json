@@ -3,7 +3,7 @@
     "name": "dyndown-ak-era5",
     "organization": "International Arctic Research Center, University of Alaska Fairbanks",
     "description": "Dynamically downscaled ERA5 reanalysis data for Alaska, at 4 km and 12 km spatial resolution",
-    "version": "0.9.0",
+    "version": "0.9.1-rc",
     "status": "Release Candidate",
 
     "permissions": {
@@ -45,7 +45,7 @@
     },
 
     "date": {
-      "metadataLastUpdated": "2026-06-25"
+      "metadataLastUpdated": "2026-06-26"
     }
   }
 ]
