@@ -6,34 +6,48 @@
 # 
 # Refactored and ported to Python 3 cwaigl@alaska.edu 2023/02
 
-import sys, os
+import sys
 import ssl
 import datetime as dt
 import calendar as cal
 import time
 from pathlib import Path
-import urllib.request, urllib.parse
-import http.cookiejar
+import urllib.request
 from multiprocessing import Pool
 import workflowutil as wu
 
+USEJRA3Q = True
+SUFFIX = "nc" if USEJRA3Q else ""
 NUMPROC = 20
 CHUNK = 16 * 1024
-OUTPATH_test = Path("../../working/")
-OUTPATH = wu.JRA55_INPUT_DIR
-PRODUCTURL = wu.JRA55_PRODUCTURL
+OUTPATH_test = Path("../../../working/")
+if USEJRA3Q:
+    OUTPATH = wu.JRA3Q_INPUT_DIR
+    PRODUCTURL = wu.JRA3Q_PRODUCTURL
+    folder = "anl_surf"
+    fnbase = "weasd-sfc-an-gauss"
+    var = '0_1_13'
+else:
+    OUTPATH = wu.JRA55_INPUT_DIR
+    PRODUCTURL = wu.JRA55_PRODUCTURL
+    folder = "anl_land"
+    fnbase = "reg_tl319"
+    var = "065_snwe"
+OUTPATH = OUTPATH_test # for testing only
 VERBOSE = True
 OVERWRITE = False
 
 startyear = 2023
-endyear = 2023
-folder = "anl_land"
-var = "065_snwe"
+endyear = 2024
 listoffiles = []
 
 def get_localpth(firsthr, lasthr, folder, varname):
-    yr = firsthr[:4]
-    return f"{folder}/{yr}/{folder}.{varname}.reg_tl319.{firsthr}_{lasthr}"
+    if USEJRA3Q:
+        yrmth = firsthr[:6]
+        return f"{folder}/{yrmth}/jra3q.{folder}.{varname}.{fnbase}.{firsthr}_{lasthr}.{SUFFIX}"
+    else:
+        yr = firsthr[:4]
+        return f"{folder}/{yr}/{folder}.{varname}.{fnbase}.{firsthr}_{lasthr}"
 
 def get_monthstr(yr, mth):
     return f"{str(yr)}{str(mth).zfill(2)}"
