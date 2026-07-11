@@ -22,8 +22,10 @@ SNOW_ARCHIVE_DIR = Path(_SHELL_CONFIG["SNOW_ARCHIVE_DIR"])
 # Folder names on disk are untouched in this pass.)
 ERA_INPUT_DIR = BASEDIR / "era5_grib"
 JRA55_INPUT_DIR = BASEDIR / "jra55_grib"
+JRA3Q_INPUT_DIR = BASEDIR / "jra3q_nc"
 WRF_DIR = BASEDIR / "WRF"
-JRA55_PRODUCTURL = "https://data.rda.ucar.edu/d628000/"
+JRA55_PRODUCTURL = "https://osdf-director.osg-htc.org/ncar/gdex/d6280000/"
+JRA3Q_PRODUCTURL = "https://osdf-director.osg-htc.org/ncar/gdex/d640000/"
 ERA5_PRODUCTURL = "https://osdf-director.osg-htc.org/ncar/gdex/d633000/"
 DYNDOWN_USER = "cwaigl"
 
