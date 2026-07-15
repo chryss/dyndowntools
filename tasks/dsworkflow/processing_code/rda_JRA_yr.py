@@ -33,12 +33,12 @@ else:
     folder = "anl_land"
     fnbase = "reg_tl319"
     var = "065_snwe"
-OUTPATH = OUTPATH_test # for testing only
+# OUTPATH = OUTPATH_test # for testing only
 VERBOSE = True
 OVERWRITE = False
 
-startyear = 2023
-endyear = 2024
+startyear = 2025
+endyear = 2025
 listoffiles = []
 
 def get_localpth(firsthr, lasthr, folder, varname):

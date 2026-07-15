@@ -39,6 +39,6 @@ if __name__ == '__main__':
             wrfyr = str(args.year)
         wpsmth = str(ii).zfill(2)
         wpsyr = str(args.year)
-        print(f"bash launch_wps_monthS.sh {wpsyr}{wpsmth}")
-        print(f"bash launch_wps_bridgeS.sh {wpsyr}{wpsmth}")
+        print(f"bash launch_wps_monthS_nc.sh {wpsyr}{wpsmth}")
+        print(f"bash launch_wps_bridgeS_nc.sh {wpsyr}{wpsmth}")
         print(f"python launch_wrf.py -bb -ba {wrfyr}{wrfmth}")
