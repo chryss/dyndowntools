@@ -4,6 +4,11 @@
 *.nc    
 tasks/dsworkflow_legacy/
 kerchunk_refs/
+tasks/dsworkflow/processing_code/masks/
+dask_spill/
+
+# SLURM job output
+*.out
 
 # no GIS helper files
 *.gpkg-shm 
@@ -145,8 +150,8 @@ dmypy.json
 # data science stuff
 data/
 
-# product output folders (spec/scripts/notebooks are tracked, generated outputs are not)
-products/*/output/
+# product outputs are tracked by default; put large/untrackable files in output_norepo/
+products/*/output_norepo/
 
 # Authentication
 auth.*
