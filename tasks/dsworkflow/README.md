@@ -39,10 +39,15 @@ JRA-3Q is downloaded once per campaign, ahead of any particular year's ERA5 down
 1. **Download JRA-3Q** (`rda_JRA_yr.py`), if not already covering the years needed: edit the `startyear`/`endyear` constants at the top of the script, then run directly (`python rda_JRA_yr.py`). Quick and light-weight. 
 2. **Download ERA5 + preprocess** 
    - download from AWS-mirror NetCDF via `aws_era5_month.py` (lags `RDA` by ~2 months)
-   - snow and soil-moisture correction `preprocess_era_jra3q.sh`. Synthetic snow is saved automatically. 
+   - snow and soil-moisture correction `preprocess_era_nc.sh`. Synthetic snow is saved automatically. Snow source (JRA-55 or JRA-3Q) is auto-selected by date (see crossover note below); production runs from this era don't need to think about it. 
    - these two are unified in `download_preprocess_year.sh YYYY [START-END]`, which checks JRA-3Q is present for the requested months, then submits `aws_era5_array.slurm` and `preprocess_era_array.slurm`, chained with `--dependency=aftercorr` so each month's preprocessing starts as soon as (and only if) that month's download succeeds. 
    - If submitting `preprocess_era_array.slurm` manually, **always use `--export=ALL,YEAR=...`, not just `--export=YEAR=...`** as the latter replaces rather than extends the default environment inheritance and silently drops `MODULEPATH`
 3. Recovery: if a `preprocess_era_array.slurm` run fails *after* snow synthesis completed but before/during the soil moisture step, do **not** rerun `preprocess_era_array.slurm` (or `download_preprocess_year.sh`) for that month. Instead, just run soil moisture correction using `sbatch --export=ALL,YEAR=YYYY --array=<months> clamp_swvl_array.slurm`.
+4. Crossover/recovery case: to replace a corrupted pre-cutover month by re-fetching ERA5 as NetCDF from the AWS mirror (rather than RDA/GDEX GRIB) while still sourcing snow from the already-downloaded JRA-55, run manually:
+   - `python aws_era5_month.py YYYYMM`
+   - `bash preprocess_era_nc.sh YYYYMM jra55` (or `jra3q`/`auto`; `auto` picks JRA-55 before 202402, JRA-3Q from 202402 on, and errors on 202401, which straddles the cutover mid-month)
+   
+   `preprocess_snow_nc.py` (called by `preprocess_era_nc.sh`) is the script that handles both snow sources against NetCDF ERA5; `preprocess_snow.py` (GRIB ERA5 + JRA-55 only) is unchanged for the unmixed legacy pipeline below.
 
 #### GRIB ERA5 + JRA-55 — legacy, pre-2024
 

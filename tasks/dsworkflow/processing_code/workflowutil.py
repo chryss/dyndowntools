@@ -15,6 +15,9 @@ BASEDIR = Path(_SHELL_CONFIG["BASEDIR"])
 SCRIPTDIR = Path(_SHELL_CONFIG["SCRIPTDIR"])
 WRF_ARCHIVE_DIR = Path(_SHELL_CONFIG["WRF_ARCHIVE_DIR"])
 SNOW_ARCHIVE_DIR = Path(_SHELL_CONFIG["SNOW_ARCHIVE_DIR"])
+# Also read by download_preprocess_year.sh, for the same auto-selection --
+# kept in config.sh (not below) since both bash and Python need it.
+JRA_CUTOVER_YRMONTH = _SHELL_CONFIG["JRA_CUTOVER_YRMONTH"]
 
 # Python-only — never read by a bash script
 # (named *_INPUT_DIR rather than *_GRIB_DIR: RDA has been moving ERA5 away from

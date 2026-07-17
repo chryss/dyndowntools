@@ -1,14 +1,28 @@
 #!/bin/bash -e
 #
-# NetCDF ERA5 (AWS mirror) + JRA-3Q equivalent of preprocess_era.sh, for any
-# month at/after 2024-01-02. Two per-month steps ahead of a WPS run: snow
-# synthesis and a soil-moisture floor clamp. era5_to_int locates its ERA5
-# input by building an exact filename per variable (no globbing), so both
-# steps overwrite the downloaded file in place; the untouched original is
-# archived first. No invariant-file handling here -- those are ungribbed
-# once, separately, and referenced via namelist.wps's constants_name.
+# Note: -e must also be set explicitly below, not just in the shebang --
+# invoking this as `bash preprocess_era_nc.sh ...` (no exec bit set) does
+# not honor the shebang's -e, so a failed step (e.g. the python snow
+# synthesis) would otherwise be silently ignored and the raw file left
+# untouched.
+
+# NetCDF ERA5 (AWS mirror) equivalent of preprocess_era.sh, for any month
+# regardless of pipeline generation -- snow source (JRA-55 or JRA-3Q) is
+# picked by preprocess_snow_nc.py's --jra-source (default auto, by date;
+# see README.md for the crossover/recovery case: re-fetching a pre-cutover
+# month's ERA5 from the AWS mirror while still sourcing snow from JRA-55).
+# Two per-month steps ahead of a WPS run: snow synthesis and a
+# soil-moisture floor clamp. era5_to_int locates its ERA5 input by building
+# an exact filename per variable (no globbing), so both steps overwrite the
+# downloaded file in place; the untouched original is archived first. No
+# invariant-file handling here -- those are ungribbed once, separately, and
+# referenced via namelist.wps's constants_name.
+#
+# Usage: preprocess_era_nc.sh YYYYMM [auto|jra55|jra3q]
 #
 # cwaigl@alaska.edu 2026/07
+
+set -e
 
 # environment
 source "$HOME/.bashrc"
@@ -22,10 +36,11 @@ umask 002
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/config.sh"
 MONTHDIR=${1:-"202401"}
+JRASOURCE=${2:-"auto"}
 SFCDIR="${BASEDIR}/era5_nc/e5.oper.an.sfc/${MONTHDIR}"
 
 # preprocess snow (writes synth_e5.oper.an.sfc.128_141_sd... alongside the raw file)
-python "${SCRIPT_DIR}/preprocess_snow_jra3q.py" -m "${MONTHDIR}"
+python "${SCRIPT_DIR}/preprocess_snow_nc.py" -m --jra-source "${JRASOURCE}" "${MONTHDIR}"
 
 cd "${SFCDIR}"
 mkdir -p archive
