@@ -1,9 +1,12 @@
 # no netcdf or image files in the repo! 
 *DS_Store
 .vscode
-*.nc    
+*.nc
+*.out
 tasks/dsworkflow_legacy/
 kerchunk_refs/
+dask_spill/
+figures/
 
 # no GIS helper files
 *.gpkg-shm 
