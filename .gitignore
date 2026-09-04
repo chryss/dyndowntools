@@ -148,8 +148,16 @@ dmypy.json
 # data science stuff
 data/
 
-# product output folders (spec/scripts/notebooks are tracked, generated outputs are not)
-products/*/output/
+# product output folders (spec/scripts/notebooks are tracked, generated outputs are not,
+# except a README.md documenting the output/ contents, which should land in git history)
+products/*/output/*
+!products/*/output/README.md
+products/2026_akcasc_caribou/output_norepo/
+
+# product input folders: externally-supplied source data (shapefiles, reference rasters,
+# etc.) that a product needs but that this repo doesn't own/generate -- kept off-repo by
+# convention rather than committed, same reasoning as *.nc already being ignored everywhere
+products/*/input_external/
 
 # Authentication
 auth.*

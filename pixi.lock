@@ -2534,7 +2534,15 @@ packages:
 - pypi: ./
   name: dyndowntools
   version: 0.1.0
-  sha256: 23bde5d9c3a15cdda9ff45bd3505ce4077f25d55b42a8fbf1afbf1dadd5e9c70
+  sha256: 95c55e876a79bc12d58815c42632285e34ac3a75818f7031061a1364045a4c2f
+  requires_dist:
+  - numpy>=2.4.6,<3
+  - pandas>=3.0.3,<4
+  - xarray>=2025.6.1,<2026
+  - pyproj>=3.7.2,<4
+  - rioxarray>=0.20.0,<0.21
+  - geopandas>=1.1.3,<2
+  - pyyaml>=6.0.3,<7
   requires_python: '>=3.11'
 - conda: https://conda.anaconda.org/conda-forge/linux-64/esmf-8.9.1-nompi_h0c1e4bb_3.conda
   sha256: 7c91329051080f64fe81fd7346600bc07feaa60c102abc842f2b9b3c7a1d35aa

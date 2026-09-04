@@ -1,0 +1,49 @@
+# Canonical data-source locations for dyndowntools scripts (tasks/, products/).
+#
+# Loaded via dyndowntools.paths.resolve(). Each resource lists candidate absolute
+# paths in priority order. When a resource has more than one candidate, they are
+# independent copies of the same data on different filesystems (not a stale vs.
+# current pair) -- resolve() returns the first one that exists on the current host.
+#
+# Does not cover tasks/dsworkflow/ or tasks/dsworkflow_legacy/, which manage their
+# own paths.
+
+wrf_era5_root:
+  description: >
+    Postprocessed daily downscaled ERA5/WRF NetCDF output, one file per day
+    under <root>/<resolution>km/<year>/era5_wrf_dscale_<resolution>km_<date>.nc.
+  candidates:
+    - /beegfs/CMIP6/wrf_era5
+    - /import/SNAP/cwaigl/wrf_era5
+
+wrf_geo_em_root:
+  description: >
+    Static WRF grid definition files (geo_em.d01.nc, geo_em.d02.nc), colocated
+    at the top level of the wrf_era5 data root (not per-year).
+  candidates:
+    - /beegfs/CMIP6/wrf_era5
+    - /import/SNAP/cwaigl/wrf_era5
+
+era5_wrf_deploy_base:
+  description: >
+    Base directory where the dsworkflow downscaling pipeline is deployed
+    (config.sh's deploy root). WRF/run_active below it is the active run's
+    working directory -- ephemeral, cloned/rotated by dsworkflow -- so callers
+    join "WRF/run_active" themselves rather than treating it as its own
+    candidate list.
+  candidates:
+    - /center1/DYNDOWN/cwaigl/ERA5_WRF
+
+era5_single_levels_akcasc:
+  description: Raw ERA5 single-level reanalysis, AKCASC's CDS-downloaded copy.
+  candidates:
+    - /import/AKCASC/data/cds/reanalysis-era5-single-levels
+
+dask_spill_root:
+  description: >
+    Scratch directory for Dask worker spill-to-disk. Repo-relative by
+    convention (see .gitignore's dask_spill/ rule); created on demand by
+    callers, never committed.
+  must_exist: false
+  candidates:
+    - "{repo_root}/dask_spill"
