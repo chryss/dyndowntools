@@ -52,10 +52,13 @@ def parse_arguments():
     parser.add_argument('-e', '--experimental', 
         action='store_true',
         help='use experimental namelist')
-    parser.add_argument('-T', '--timestep', 
+    parser.add_argument('-T', '--timestep',
         type=str,
         default='60',
         help='time step for wrf namelist')
+    parser.add_argument('-n', '--nc',
+        action='store_true',
+        help='use the NetCDF-ERA5 (era5_to_int) wps namelist instead of the GRIB one')
     parser.add_argument('date',  
         help='run label for 2-day run format YYMMDD or - wps only - monthlabel with optional B for bridge: 201803_B means 2018, bridge between Feb and March',
         type=str)
@@ -106,6 +109,7 @@ if __name__ == '__main__':
                 startdt = nominalstart
                 enddt = nominalstart + dt.timedelta(days=days_in_month-1)
             params = get_params(startdt, enddt)
-            with open(templatedir / 'namelist.wps.TEMPLATE', 'r') as src:
+            template = 'namelist.wps_nc.TEMPLATE' if args.nc else 'namelist.wps.TEMPLATE'
+            with open(templatedir / template, 'r') as src:
                 with open(outdir / fn, 'w') as target:
                     target.write(src.read().format(**params))

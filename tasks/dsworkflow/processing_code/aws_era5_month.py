@@ -1,52 +1,53 @@
 #! /usr/bin/env python
 #
-# Rewrite mirroring aws_era5_month.py's design and output layout, but
-# downloading from NCAR's RDA/GDEX (OSDF-fronted) archive instead of the
-# AWS ERA5 mirror. RDA/GDEX has a given month's data ~2 months before it
-# reaches the AWS mirror -- this is the tool for that narrow window, not a
-# general substitute for aws_era5_month.py (see its header and README.md).
-# RDA/GDEX has also stopped serving GRIB, so like the AWS mirror this
-# always downloads NetCDF; the previous GETNETCDF/SKIPSNOW toggles (the
-# latter silently dropping snow depth by default) are gone.
+# Replacement for rda_month.py, for the 2024-01-02-forward era: downloads
+# ERA5 input data for WRF from NCAR's public AWS Open Data mirror
+# (nsf-ncar-era5) instead of RDA/GDEX. RDA has stopped serving GRIB, and
+# era5_to_int (used for the WPS branch from the cutover forward) requires
+# input laid out exactly like this bucket's own directory structure -- so
+# locally we mirror that structure verbatim, flat under one root (no
+# year-level folder), matching era5_to_int's own path builder
+# (root/{folder}/{YYYYMM}/...), which has no year level either -- a
+# per-year root would break for any date range spanning a year boundary.
+# rda_month.py is left untouched as the tool for re-fetching any
+# pre-cutover (RDA/GDEX, GRIB-era) month, e.g. to replace a corrupted file.
 #
-# URL/dataset ID/layout verified live 2026-07-17 against
-# osdf-director.osg-htc.org, dataset d633000: HEAD requests resolve
-# Content-Length correctly through the redirect chain, and the
-# root/{folder}/{YYYYMM}/{filename} key structure matches what's assumed
-# below. Per workflowutil.py's own warning, NCAR has rebranded/restructured
-# this access path multiple times and will likely do so again -- re-verify
-# before trusting this if downloads start failing (see the
-# rda-gdex-url-check skill).
-#
-# cwaigl@alaska.edu 2026/07 (originally 2023/02; rewritten for
-# aws_era5_month.py parity)
+# cwaigl@alaska.edu 2026/07
 
 import sys
-import ssl
+import datetime as dt
+import calendar as cal
 import time
 import argparse
-import calendar as cal
-import datetime as dt
 from pathlib import Path
 from functools import partial
 from multiprocessing import Pool
-import urllib.request
-from urllib.error import URLError, HTTPError
-from http.client import IncompleteRead
+import boto3
+from botocore import UNSIGNED
+from botocore.config import Config
+from botocore.exceptions import ClientError, EndpointConnectionError
 import workflowutil as wu
 
-NUMPROC = 10
+NUMPROC = 3
 NUMTRIES = 4    # try up to 4 times to download a file, on a size mismatch or a transfer error
-CHUNK = 16 * 1024
 OUTDIR = str(wu.ERA_NC_INPUT_DIR)
-PRODUCTURL = wu.ERA5_PRODUCTURL
+BUCKET = wu.ERA5_AWS_BUCKET
 VERBOSE = True
 OVERWRITE = False
-EXT = "nc"    # RDA/GDEX, like the AWS mirror, is NetCDF-only now
+EXT = "nc"    # the AWS mirror is NetCDF-only
 
-# Same variable set as aws_era5_month.py, snow depth (128_141_sd) included
-# unconditionally -- only the source (RDA/GDEX vs AWS) and therefore the
-# URL differ; local layout is identical.
+_s3 = None    # per-worker-process boto3 client, set by _init_worker
+
+def _init_worker():
+    # A boto3 client isn't safe to share across forked processes, so each
+    # Pool worker gets its own. Public bucket -- no credentials needed.
+    global _s3
+    _s3 = boto3.client("s3", config=Config(signature_version=UNSIGNED))
+
+# Same variable set as rda_month.py, snow depth included (preprocess_snow.py
+# uses ERA5 sd as its primary field, replaced by JRA snow only inside the
+# glacier/implausible-value mask) -- only the source, and therefore the URL
+# and local directory layout, differs.
 varsets_folders = {
     "e5.oper.an.pl" : {
         "ll025sc": [
@@ -68,36 +69,32 @@ varsets_folders = {
 }
 listoffiles = []
 
-
 def parse_arguments():
     """Parse arguments"""
     parser = argparse.ArgumentParser(
-        description='Download one month worth of ERA5 input data for WRF from RDA/GDEX')
+        description='Download one month worth of ERA5 input data for WRF from the AWS ERA5 mirror')
     parser.add_argument('yrmonth',
         help='run label for monthlabel 202403 means March 2024',
         type=str)
     parser.add_argument('-d', '--directory',
         type=str,
         default=OUTDIR,
-        help='directory under which to save the data (folder-per-product, then month -- matches aws_era5_month.py/era5_to_int)')
+        help='directory under which to save the data (flat, no YYYY subfolder -- matches the AWS bucket layout)')
     return parser.parse_args()
 
-
 def get_localpth(mthstr, firsthr, lasthr, folder, varclass, varname):
-    # Matches the remote key structure and aws_era5_month.py's local layout:
+    # Matches the AWS bucket's own key structure exactly:
     # {folder}/{mthstr}/{folder}.{varname}.{varclass}.{firsthr}_{lasthr}.nc
     return f"{folder}/{mthstr}/{folder}.{varname}.{varclass}.{firsthr}_{lasthr}.{EXT}"
 
-
 def get_monthstr(yr, mth):
     return f"{str(yr)}{str(mth).zfill(2)}"
-
 
 def get_filelist(yr, mth):
     filelist = []
     mthstr = get_monthstr(yr, mth)
     num_days = cal.monthrange(yr, mth)[1]
-    days = [dt.date(yr, mth, day) for day in range(1, num_days + 1)]
+    days = [dt.date(yr, mth, day) for day in range(1,num_days+1)]
     for folder in varsets_folders:
         for varclass in varsets_folders[folder]:
             if folder == "e5.oper.an.pl":
@@ -117,44 +114,13 @@ def get_filelist(yr, mth):
                     filelist.append(fnpth)
     return filelist
 
-
-def _urlopen(url_or_request):
-    # RDA/GDEX has occasionally hit certificate verification errors that a
-    # same-context retry doesn't clear; falling back to an unverified
-    # context on SSLError is the same workaround the original script used.
-    try:
-        return urllib.request.urlopen(url_or_request, timeout=60)
-    except ssl.SSLError as error:
-        print(f"SSL error ({error}), retrying without cert verification.")
-        ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
-        return urllib.request.urlopen(url_or_request, context=ctx, timeout=60)
-
-
-def get_content_length(url):
-    # HEAD, followed through the OSDF director's redirect to the actual
-    # cache node -- verified live to return an accurate Content-Length.
-    req = urllib.request.Request(url, method="HEAD")
-    with _urlopen(req) as resp:
-        length = resp.headers.get("Content-Length")
-        return int(length) if length is not None else None
-
-
-def download(url, outfp):
-    with _urlopen(url) as infile, open(outfp, "wb") as outfile:
-        while True:
-            chunk = infile.read(CHUNK)
-            if not chunk:
-                break
-            outfile.write(chunk)
-
-
 def process_file(rootpath, fileID):
     # fileID is "{folder}/{mthstr}/{filename}" -- preserved verbatim under
-    # rootpath, matching aws_era5_month.py's layout (era5_to_int/
-    # preprocess_era_nc.sh expect root/{folder}/{YYYYMM}/... with no year
-    # level).
+    # rootpath, so era5_to_int can be pointed at rootpath (unchanged across
+    # years) and see exactly the folder-per-product/folder-per-month layout
+    # it expects.
+    if _s3 is None:    # allows direct calls outside a Pool, e.g. manual testing
+        _init_worker()
     outfp = rootpath / fileID
     outfp.parent.mkdir(parents=True, exist_ok=True)
     ofile = outfp.name
@@ -164,22 +130,20 @@ def process_file(rootpath, fileID):
             sys.stdout.write(f"{ofile} exists, and overwrite not enabled. skipping.\n")
         return
 
-    url = f"{PRODUCTURL}{fileID}"
-    expected_size = get_content_length(url)
+    expected_size = _s3.head_object(Bucket=BUCKET, Key=fileID)["ContentLength"]
 
     for attempt in range(1, NUMTRIES + 1):
         if VERBOSE:
             sys.stdout.write(f"... downloading {ofile} to {outfp.parent} (attempt {attempt}).\n")
         try:
-            download(url, outfp)
-        except (URLError, HTTPError, IncompleteRead) as error:
+            _s3.download_file(BUCKET, fileID, str(outfp))
+        except (ClientError, EndpointConnectionError) as error:
             print(f"Attempt {attempt} to download {fileID} failed: {error}.")
         else:
             actual_size = outfp.stat().st_size
-            if expected_size is None or actual_size == expected_size:
+            if actual_size == expected_size:
                 if VERBOSE:
-                    verified = ", size-verified" if expected_size is not None else ""
-                    sys.stdout.write(f"Done with {ofile} ({actual_size} bytes{verified}).\n")
+                    sys.stdout.write(f"Done with {ofile} ({actual_size} bytes, size-verified).\n")
                 return
             print(
                 f"Attempt {attempt}: size mismatch for {ofile} "
@@ -190,7 +154,6 @@ def process_file(rootpath, fileID):
             print("Retrying.")
 
     raise RuntimeError(f"Failed to download {fileID} with a correct size after {NUMTRIES} attempts.")
-
 
 if __name__ == "__main__":
 
@@ -205,7 +168,7 @@ if __name__ == "__main__":
     print(f"Downloading {len(listoffiles)} files.")
 
     mapfunc = partial(process_file, rootpath)
-    with Pool(NUMPROC) as p:
+    with Pool(NUMPROC, initializer=_init_worker) as p:
         p.map(mapfunc, listoffiles)
 
     run_time = time.perf_counter() - start_time

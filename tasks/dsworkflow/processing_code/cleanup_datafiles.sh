@@ -4,6 +4,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/config.sh"
 DATADIR="${BASEDIR}/WRF/staging"
 TARGETDIR="${WRF_ARCHIVE_DIR}"
+OTHERTARGETDIR="/beegfs/CMIP6/wrf_era5/"
 
 # environment
 source "$HOME/.bashrc"
@@ -21,7 +22,8 @@ num2=$(cat ${SCRIPTDIR}/status/wrfdir_fordeletion.txt | wc -l)
 if (( $num1 == 4 * $num2 )); then
     echo "Everything looks right, moving files"
     cd ${DATADIR}
-    rsync -avz -R --remove-source-files * $TARGETDIR
+    rsync -avz -R --chmod=F-w * $OTHERTARGETDIR
+    rsync -avz -R --chmod=F-w --remove-source-files * $TARGETDIR
     if [ "$?" -eq "0" ]; then
         echo "rsync finished successfully; deleting directories"
         cd ${SCRIPTDIR}

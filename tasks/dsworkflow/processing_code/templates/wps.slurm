@@ -2,8 +2,8 @@
 
 #SBATCH --partition=t2small
 #SBATCH --account=cmip6
-#SBATCH --ntasks=24
-#SBATCH --tasks-per-node=24
+#SBATCH --ntasks=28
+#SBATCH --tasks-per-node=28
 #SBATCH --time=04:00:00
 #SBATCH --mail-user=cwaigl@alaska.edu
 #SBATCH --mail-type=FAIL
@@ -32,6 +32,6 @@ cd $SLURM_SUBMIT_DIR
 # run ungrib and metgrid
 ./ungrib.exe > /dev/null
 ./avg_tsfc.exe > /dev/null
-mpirun -np 24 ./metgrid.exe 
+mpirun -np 28 ./metgrid.exe
 # Clean up the intermediary files
 rm ./FILE*

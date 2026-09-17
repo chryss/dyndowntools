@@ -5,13 +5,16 @@ channels:
 dependencies:
   - python
   - python-dotenv
+  - boto3
   - wrf-python
   - cfgrib
   - python-cdo
   - xarray
   - numpy
   - pandas
+  - pyarrow
   - netCDF4
+  - matplotlib
   - jupyterlab
   - nb-clean
   - pylint

@@ -3,7 +3,9 @@
 
 import logging
 import argparse
+import os
 from pathlib import Path
+from multiprocessing import Pool
 from netCDF4 import Dataset
 import wrf
 import xarray as xr
@@ -12,11 +14,12 @@ import datetime as dt
 LOGLEVEL=logging.INFO
 TESTFOLDER = '211229'
 WRFDATA = Path.home() / "Projects/dyndowndata/Icestorm2021/" / TESTFOLDER
-OUTDATA = Path.home() / "Projects/dyndowndata/proctest02/" 
-SUBSETS = {'d01': '12km', 
+OUTDATA = Path.home() / "Projects/dyndowndata/proctest02/"
+SUBSETS = {'d01': '12km',
            'd02': '4km'}
 PLEVELS = [200., 300., 500., 700., 850., 900., 925., 950., 1000.]
 COMPRESSIONLEVEL = 5
+NPROC = 10    # one wrfout file's extraction+vinterp per worker; ~10 files/subset in a 54h run
 
 VARS = ['RAINNC', 'RAINC', 'ACSNOW', 'slp', 
         'wspd_wdir10', 'uvmet10', 'ctt', 'dbz', 
@@ -95,6 +98,46 @@ def postproc_pressurelevel(varname, fn, fieldtypelabel=None):
                field_type=fieldtypelabel,
                log_p=True)
 
+def _init_worker():
+    # wrf.getvar's diagnostic calculations (dbz, rh, etc.) can use OpenMP
+    # internally; without this, NPROC worker processes could each try to
+    # fan out across all cores and oversubscribe the node.
+    os.environ["OMP_NUM_THREADS"] = "1"
+
+def process_file(fn):
+    """Extract and postprocess all variables for one wrfout file."""
+    logging.info(f"getting vars from {fn.stem}")
+    with Dataset(fn) as ncfile:
+        concatdic = {varname: get_var_all(ncfile, varname) for varname in VARS}
+
+        logging.debug("splitting up wind vars")
+        concatdic['wspd10'] = concatdic['wspd_wdir10'].sel(wspd_wdir='wspd', drop=True)
+        concatdic['wdir10'] = concatdic['wspd_wdir10'].sel(wspd_wdir='wdir', drop=True)
+        concatdic['u10'] = concatdic['uvmet10'].sel(u_v='u', drop=True)
+        concatdic['v10'] = concatdic['uvmet10'].sel(u_v='v', drop=True)
+        concatdic['u'] = concatdic['uvmet'].sel(u_v='u', drop=True)
+        concatdic['v'] = concatdic['uvmet'].sel(u_v='v', drop=True)
+        concatdic['w'] = concatdic['wa']
+        concatdic.pop('wspd_wdir10', None)
+        concatdic.pop('uvmet10', None)
+        concatdic.pop('uvmet', None)
+        concatdic.pop('wa', None)
+        for varname in ['wspd10', 'wdir10', 'u10', 'v10', 'u', 'v', 'w']:
+            concatdic[varname].name = varname
+
+        logging.debug("post-processing pressure level vars")
+        for varname in PRESSUREVARS:
+            if varname == 'temp':
+                concatdic[varname] = postproc_pressurelevel(concatdic[varname], ncfile, fieldtypelabel='tk')
+            else:
+                concatdic[varname] = postproc_pressurelevel(concatdic[varname], ncfile)
+
+    return concatdic
+
+def build_chunksizes(dataarray):
+    """Chunk by single Time step, full extent on every other dimension."""
+    return tuple(1 if dim == 'Time' else dataarray.sizes[dim] for dim in dataarray.dims)
+
 if __name__ == '__main__':
     args = get_args()
 
@@ -108,51 +151,23 @@ if __name__ == '__main__':
         filelist = sorted(list((args.wrfdir).glob(f"wrfout_{testset}*")))
         startdate = dt.datetime.strptime(args.yrmd, '%Y%m%d')
 
-        concatdic = {}
+        logging.info(f"extracting {len(filelist)} files for {testset} using {min(NPROC, len(filelist))} processes")
+        with Pool(min(NPROC, len(filelist)), initializer=_init_worker) as pool:
+            results = pool.map(process_file, filelist)
+
         mergedic = {}
-        for fn in filelist:
-            logging.info(f"getting vars from {fn.stem}")
-            with Dataset(fn) as ncfile:
-                for varname in VARS:
-                    concatdic[varname] = get_var_all(ncfile, varname)
+        for concatdic in results:
+            for var in concatdic:
+                mergedic.setdefault(var, []).append(concatdic[var])
 
-                logging.debug(f"splitting up wind vars")
-                concatdic['wspd10'] = concatdic['wspd_wdir10'].sel(wspd_wdir='wspd', drop=True)
-                concatdic['wdir10'] = concatdic['wspd_wdir10'].sel(wspd_wdir='wdir', drop=True)
-                concatdic['u10'] = concatdic['uvmet10'].sel(u_v='u', drop=True)
-                concatdic['v10'] = concatdic['uvmet10'].sel(u_v='v', drop=True)
-                concatdic['u'] = concatdic['uvmet'].sel(u_v='u', drop=True)
-                concatdic['v'] = concatdic['uvmet'].sel(u_v='v', drop=True)
-                concatdic['w'] = concatdic['wa']
-                concatdic.pop('wspd_wdir10', None)
-                concatdic.pop('uvmet10', None)
-                concatdic.pop('uvmet', None)
-                concatdic.pop('wa', None)
-                for varname in ['wspd10', 'wdir10', 'u10', 'v10', 'u', 'v', 'w']:
-                    concatdic[varname].name = varname
+        # logging.debug(f"post-processing snow")
+        # concatdic['SNOW'] = postproc_snow(concatdic['SNOW'])
+        # concatdic['SNOWH'] = postproc_snowh(concatdic['SNOWH'])
 
-                logging.debug(f"post-processing pressure level vars")
-                for varname in PRESSUREVARS:
-                    if varname == 'temp':
-                        concatdic[varname] = postproc_pressurelevel(concatdic[varname], ncfile, fieldtypelabel='tk')
-                    else:
-                        concatdic[varname] = postproc_pressurelevel(concatdic[varname], ncfile)
-
-                logging.debug(f"post-processing snow")
-                # concatdic['SNOW'] = postproc_snow(concatdic['SNOW'])
-                # concatdic['SNOWH'] = postproc_snowh(concatdic['SNOWH'])
-
-                logging.info("Append to variable merge dictionary")
-                for var in concatdic:
-                    try:
-                        mergedic[var].append(concatdic[var])
-                    except KeyError:
-                        mergedic[var] = [concatdic[var]]
-        
         concatdic = {
-            item: xr.concat(mergedic[item], dim='Time') 
-            for item in concatdic}
-        
+            item: xr.concat(mergedic[item], dim='Time')
+            for item in mergedic}
+
         print(f"postprocessing accumulating variables")
         for varname in ACCVARS:
             concatdic[varname] = postproc_acc(concatdic[varname.upper()])
@@ -175,11 +190,26 @@ if __name__ == '__main__':
         merged.attrs['version'] = 'WRF V4.5.1 - project v. 1.1'
         merged.interp_level.attrs['units'] = "hPa"
         merged.wdir10.attrs['units'] = "degree"
+        merged.XLONG.attrs['units'] = 'degrees_east'
+        merged.XLONG.attrs['standard_name'] = 'longitude'
+        merged.XLONG.attrs['long_name'] = 'longitude'
+        merged.XLAT.attrs['units'] = 'degrees_north'
+        merged.XLAT.attrs['standard_name'] = 'latitude'
+        merged.XLAT.attrs['long_name'] = 'latitude'
         for var in merged.data_vars:
             merged[var].attrs['projection'] = str(merged[var].attrs['projection'])
 
+        # wrf.getvar returns some diagnostics (slp, ctt, z/height, uvmet, wa)
+        # as float64 even though WRF's own output -- and every other
+        # extracted variable -- is float32; force float32 uniformly here
+        # rather than special-casing which diagnostics happen to promote.
         encoding = {
-            var: {"zlib": True, "complevel": COMPRESSIONLEVEL}
+            var: {
+                "zlib": True,
+                "complevel": COMPRESSIONLEVEL,
+                "chunksizes": build_chunksizes(merged[var]),
+                "dtype": "float32",
+            }
             for var in merged.data_vars
         }
         infix = ''
