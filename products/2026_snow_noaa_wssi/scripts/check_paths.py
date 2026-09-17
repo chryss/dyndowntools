@@ -5,6 +5,8 @@ output directory writability before running compute_snow_climatologies.py.
 import calendar
 from pathlib import Path
 
+from dyndowntools import paths
+
 YEAR_START = 1981
 YEAR_END = 2010
 RESOLUTIONS = (4, 12)
@@ -25,7 +27,7 @@ def check_source_files(resolution: int) -> bool:
     bool
         True if every month in range has the expected file count.
     """
-    source_dir = Path(f"/import/beegfs/CMIP6/wrf_era5/{resolution:02d}km/")
+    source_dir = paths.resolve("wrf_era5_root") / f"{resolution:02d}km"
     filepattern = f"era5_wrf_dscale_{resolution}km"
     if not source_dir.is_dir():
         print(f"  MISSING source directory: {source_dir}")

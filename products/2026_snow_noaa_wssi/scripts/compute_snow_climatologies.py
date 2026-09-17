@@ -6,7 +6,6 @@ accumulated acsnow, monthly maximum SNOW, and monthly average SNOW, each
 averaged across 1981-2010. Edit RESOLUTION and rerun for the other domain.
 """
 
-import os
 import time
 from pathlib import Path
 
@@ -15,10 +14,12 @@ import pandas as pd
 import xarray as xr
 from dask.distributed import Client
 
+from dyndowntools import paths
+
 RESOLUTION = 12  # 4 or 12 km
 YEAR_START = 1981
 YEAR_END = 2010
-SOURCE_DIR = Path(f"/import/beegfs/CMIP6/wrf_era5/{RESOLUTION:02d}km/")
+SOURCE_DIR = paths.resolve("wrf_era5_root") / f"{RESOLUTION:02d}km"
 FILEPATTERN = f"era5_wrf_dscale_{RESOLUTION}km"
 OUTPUT_DIR = Path(__file__).resolve().parent.parent / "output"
 MONTHS = [str(m).zfill(2) for m in range(1, 13)]
@@ -30,7 +31,7 @@ MONTHS = [str(m).zfill(2) for m in range(1, 13)]
 N_WORKERS = 7
 THREADS_PER_WORKER = 4
 MEMORY_LIMIT = "20GB"  # 7 x 20 = 140GB, headroom on a 150GB node
-DASK_SPILL_DIR = Path(f"/import/SNAP/{os.environ['USER']}/dask_spill")
+DASK_SPILL_DIR = paths.resolve("dask_spill_root")
 
 
 def monthly_aggregates(
@@ -69,6 +70,7 @@ def monthly_aggregates(
 
 
 if __name__ == "__main__":
+    DASK_SPILL_DIR.mkdir(parents=True, exist_ok=True)
     client = Client(
         n_workers=N_WORKERS,
         threads_per_worker=THREADS_PER_WORKER,
