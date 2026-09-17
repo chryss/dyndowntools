@@ -2,13 +2,14 @@
 # is the way to go for extracting / aggregating data 
  
 import time
-from pathlib import Path
 import pandas as pd
 import xarray as xr
 import dask
 
+from dyndowntools import paths
+
 resolution = 4         # 4 or 12 km
-datadir = Path(f"/import/SNAP/cwaigl/wrf_era5/{str(resolution).zfill(2)}km/")
+datadir = paths.resolve("wrf_era5_root") / f"{str(resolution).zfill(2)}km"
 filepattern = f"era5_wrf_dscale_{resolution}km"
 chunking = {
     4: [225, 210],

@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
-import os
 import time
 from functools import partial
 from pathlib import Path
@@ -18,8 +17,10 @@ from pathlib import Path
 import xarray as xr
 from dask.distributed import Client
 
+from dyndowntools import paths
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_DATADIR = Path("/beegfs/CMIP6/wrf_era5")
+DEFAULT_DATADIR = paths.resolve("wrf_era5_root")
 DEFAULT_START_YEAR = 1959
 DEFAULT_END_YEAR = 2022
 
@@ -227,14 +228,13 @@ def main() -> None:
 
     if args.dry_run:
         for year in years:
-            paths = files_for_year(args.datadir, args.resolution, year)
+            matched_paths = files_for_year(args.datadir, args.resolution, year)
             out_path = args.outdir / f"{args.variable}_{args.resolution}km_{year}.nc"
             status = "exists" if out_path.exists() else "to do"
-            print(f"[{year}] {len(paths)} source files, output {status}: {out_path.name}")
+            print(f"[{year}] {len(matched_paths)} source files, output {status}: {out_path.name}")
         return
 
-    user = os.environ.get("USER", "cwaigl")
-    spill_dir = Path(f"/import/SNAP/{user}/dask_spill")
+    spill_dir = paths.resolve("dask_spill_root")
     spill_dir.mkdir(parents=True, exist_ok=True)
 
     client = Client(

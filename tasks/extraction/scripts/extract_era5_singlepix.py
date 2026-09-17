@@ -11,11 +11,13 @@ from pathlib import Path
 import xarray as xr
 import pandas as pd
 
+from dyndowntools import paths
+
 startyr = 1980
 endyr = 2020
 projdir = Path().resolve().parents[0]
 outdir = projdir / "evaluation/working"
-datadir = Path(f"/import/AKCASC/data/cds/reanalysis-era5-single-levels")
+datadir = paths.resolve("era5_single_levels_akcasc")
 weatherstationlist = projdir / "evaluation/auxdata/ACIS_stations.csv"
 fileprefix = "reanalysis-era5-single-levels"
 locnames = {

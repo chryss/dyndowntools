@@ -10,6 +10,8 @@ import numpy as np
 import pandas as pd
 import logging
 
+from dyndowntools import paths
+
 logger = logging.getLogger(__name__)
 logger.setLevel('INFO')
 formatter = logging.Formatter(
@@ -23,7 +25,7 @@ logger.addHandler(handler)
 NUMBER_OF_CORES = 4
 projdir = Path().resolve().parents[0]
 outdir = projdir / "evaluation/working"
-datadir = Path(f"/import/SNAP/cwaigl/wrf_era5")
+datadir = paths.resolve("wrf_era5_root")
 
 # settings for years and location 
 teststations = [

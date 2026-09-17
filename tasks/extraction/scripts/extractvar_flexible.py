@@ -9,6 +9,8 @@ import numpy as np
 import pandas as pd
 import logging
 
+from dyndowntools import paths
+
 READAPPROACHES = {
     1: "multiprocessing w/ spawn",
     2: "xarray open_mfdataset",
@@ -30,8 +32,7 @@ logger.addHandler(handler)
 NUMBER_OF_CORES = 8
 projdir = Path().resolve().parents[0]
 outdir = projdir / "evaluation/working"
-# datadir = Path(f"/import/beegfs/CMIP6/wrf_era5/")
-datadir = Path(f"/import/SNAP/cwaigl/wrf_era5")
+datadir = paths.resolve("wrf_era5_root")
 
 # settings for station related parameters
 locs = {        # name: (lon, lat)

@@ -14,6 +14,8 @@ from dask.diagnostics import ProgressBar
 from kerchunk.combine import MultiZarrToZarr
 from kerchunk.hdf import SingleHdf5ToZarr
 
+from dyndowntools import paths
+
 
 DEFAULT_KEEP_PREFIXES = [
     "wspd10",
@@ -82,7 +84,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--datadir",
         type=Path,
-        default=Path("/beegfs/CMIP6/wrf_era5"),
+        default=paths.resolve("wrf_era5_root"),
         help="Base directory containing per-year folders.",
     )
     parser.add_argument(

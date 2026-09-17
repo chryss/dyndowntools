@@ -3,12 +3,13 @@
  
 import itertools
 import time
-from pathlib import Path
 import numpy as np
 import xarray as xr
 import dask
 
-datadir = Path("/import/SNAP/cwaigl/wrf_era5/04km/")
+from dyndowntools import paths
+
+datadir = paths.resolve("wrf_era5_root") / "04km"
 filepattern = "era5_wrf_dscale_4km_*.nc"
 testyears_1 = ['2010', '2011']
 testyears_2 = ['2012', '2013']
