@@ -2,9 +2,11 @@
 *DS_Store
 .vscode
 *.nc
+*.tif
+*.tiff
 *.out
 tasks/dsworkflow_legacy/
-tasks/extraction/output/
+tasks/*/output/*
 kerchunk_refs/
 dask_spill/
 figures/
