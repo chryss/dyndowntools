@@ -4,6 +4,7 @@
 *.nc
 *.out
 tasks/dsworkflow_legacy/
+tasks/extraction/output/
 kerchunk_refs/
 dask_spill/
 figures/
