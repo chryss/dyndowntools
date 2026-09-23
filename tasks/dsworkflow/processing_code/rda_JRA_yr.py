@@ -37,8 +37,8 @@ else:
 VERBOSE = True
 OVERWRITE = False
 
-startyear = 2025
-endyear = 2025
+startyear = 2026
+endyear = 2026
 listoffiles = []
 
 def get_localpth(firsthr, lasthr, folder, varname):
