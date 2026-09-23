@@ -7,7 +7,7 @@ SCRIPTDIR=$(pwd)
 # LOGFILE=${$BASEDIR}/
 umask 002
 
-source "$HOME/.bashrc"
+eval "$(conda shell.bash hook)"
 conda activate dyndown
 
 # constants

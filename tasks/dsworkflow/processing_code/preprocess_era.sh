@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # environment
-source "$HOME/.bashrc"
 module purge
 # old chinook
 # module load data/CDO/1.7.2-pic-intel-2016b
 # new chinook
 module load intel-compilers/2023.1.0 iimpi/2023a
 module load CDO/2.2.2
+eval "$(conda shell.bash hook)"
 conda activate dyndown
 umask 002
 

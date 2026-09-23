@@ -14,7 +14,7 @@ module load intel-compilers/2023.1.0 iimpi/2023a
 module load netCDF/4.9.2 netCDF-Fortran/4.6.1
 # old chinook
 # module load data/netCDF-Fortran/4.4.4-pic-intel-2016b
-source "$HOME/.bashrc"
+eval "$(conda shell.bash hook)"
 conda activate dyndown
 
 # First of all generate a link directory for month and previous month

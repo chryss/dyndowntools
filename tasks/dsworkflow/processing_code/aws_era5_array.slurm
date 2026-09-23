@@ -1,5 +1,5 @@
 #!/bin/bash -e
-#SBATCH --partition=t1small
+#SBATCH --partition=t2small
 #SBATCH --account=cmip6
 #SBATCH --cpus-per-task=3
 #SBATCH --mem=4G
@@ -9,9 +9,9 @@
 #SBATCH --output=status/era5_aws_%A_%a.log
 #SBATCH --array=1-12
 #
-# One array task per calendar month, downloading ERA5 NetCDF input from the
-# AWS mirror via aws_era5_month.py. I/O-bound (boto3 + Pool(3), no MPI), so
-# t1small rather than t2small/analysis. YEAR is passed at submission time
+# Download ERA5 NetCDF input from the AWS mirror via aws_era5_month.py. 
+# One array task per calendar month. This is I/O bound, so we use a 
+# pool and boto3, not mpi. YEAR is passed at submission time
 # (sbatch --export=YEAR=2025 aws_era5_array.slurm); SLURM_ARRAY_TASK_ID
 # (1-12) maps directly to month.
 #
@@ -19,7 +19,7 @@
 
 module purge
 module load slurm
-source "$HOME/.bashrc"
+eval "$(conda shell.bash hook)"
 conda activate dyndown
 
 MONTH=$(printf "%02d" "${SLURM_ARRAY_TASK_ID}")

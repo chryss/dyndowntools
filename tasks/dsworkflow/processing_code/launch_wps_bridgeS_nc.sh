@@ -15,7 +15,7 @@ umask 002
 
 module purge
 module load slurm
-source "$HOME/.bashrc"
+eval "$(conda shell.bash hook)"
 conda activate dyndown
 
 # clone the WPS prototype directory

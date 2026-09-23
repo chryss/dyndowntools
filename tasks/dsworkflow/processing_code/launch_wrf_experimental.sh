@@ -10,7 +10,7 @@ SCRIPTDIR=`pwd`
 umask 002
 
 module load slurm
-source "$HOME/.bashrc"
+eval "$(conda shell.bash hook)"
 conda activate dyndown
 
 # clone a WRF run directory with the correct date label (eg 200504 for the run from May 4 to 5, 2020.)

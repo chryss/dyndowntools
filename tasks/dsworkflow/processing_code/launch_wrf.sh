@@ -10,7 +10,7 @@ TIMESTEP=${3:-"60"}
 umask 002
 
 module load slurm
-source "$HOME/.bashrc"
+eval "$(conda shell.bash hook)"
 conda activate dyndown
 
 WRFDIR=${BASEDIR}/WRF/${DATELABEL}

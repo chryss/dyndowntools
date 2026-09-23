@@ -46,8 +46,7 @@ def _init_worker():
 
 # Same variable set as rda_month.py, snow depth included (preprocess_snow.py
 # uses ERA5 sd as its primary field, replaced by JRA snow only inside the
-# glacier/implausible-value mask) -- only the source, and therefore the URL
-# and local directory layout, differs.
+# glacier/implausible-value mask) 
 varsets_folders = {
     "e5.oper.an.pl" : {
         "ll025sc": [
@@ -83,8 +82,7 @@ def parse_arguments():
     return parser.parse_args()
 
 def get_localpth(mthstr, firsthr, lasthr, folder, varclass, varname):
-    # Matches the AWS bucket's own key structure exactly:
-    # {folder}/{mthstr}/{folder}.{varname}.{varclass}.{firsthr}_{lasthr}.nc
+    # Matches the AWS bucket's own key structure exactly
     return f"{folder}/{mthstr}/{folder}.{varname}.{varclass}.{firsthr}_{lasthr}.{EXT}"
 
 def get_monthstr(yr, mth):
@@ -115,10 +113,7 @@ def get_filelist(yr, mth):
     return filelist
 
 def process_file(rootpath, fileID):
-    # fileID is "{folder}/{mthstr}/{filename}" -- preserved verbatim under
-    # rootpath, so era5_to_int can be pointed at rootpath (unchanged across
-    # years) and see exactly the folder-per-product/folder-per-month layout
-    # it expects.
+    # fileID is "{folder}/{mthstr}/{filename}" 
     if _s3 is None:    # allows direct calls outside a Pool, e.g. manual testing
         _init_worker()
     outfp = rootpath / fileID

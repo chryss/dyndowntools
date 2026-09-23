@@ -25,10 +25,10 @@
 set -e
 
 # environment
-source "$HOME/.bashrc"
 module purge
 module load intel-compilers/2023.1.0 iimpi/2023a
 module load NCO/5.1.3
+eval "$(conda shell.bash hook)"
 conda activate dyndown
 umask 002
 
