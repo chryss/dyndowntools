@@ -7,6 +7,7 @@ Code that orchestrates all aspects of the ERA5/WRF dynamical downscaling process
  - `processing_code/`: the actively used orchestration code 
  - `processing_code/config.sh`: paths and configuration options that are shared between bash and Python code (see Notes below)
  - `processing_code/workflowutil.py`: shared Python helper code; configuration options for Python only that are not in `config.sh` (see Notes below)
+ - `utilties`: clean-up utilities used to adjust earlier files to later-decided standards, eg. for metadata correction
  - `dyndown_environment.yml`: environment file for the `conda` env this pipeline runs under
  - `taskcontrol.ipynb`: generates/updates `status.feather` (see Prerequisites & housekeeping below)
  - `code.json`: USGS code-publication metadata for the Zenodo release
