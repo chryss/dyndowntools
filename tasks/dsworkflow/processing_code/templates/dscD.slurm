@@ -8,6 +8,7 @@
 #SBATCH --mail-user=cwaigl@alaska.edu
 #SBATCH --mail-type=FAIL
 #SBATCH --output=wrf.%j
+#SBATCH --constraint="Broadwell|Skylake"
 
 ulimit -s unlimited
 ulimit -l unlimited
@@ -30,8 +31,8 @@ cd $SLURM_SUBMIT_DIR
 # Create a lockfile against output moving
 touch ./.dontmove_ongoingrun
 # Launch the MPI application
-mpirun -np $SLURM_NTASKS ./real.exe
-mpirun -np $SLURM_NTASKS ./wrf.exe
+mpirun -np $SLURM_NTASKS ./real.exe || { echo "real.exe failed" >&2; exit 1; }
+mpirun -np $SLURM_NTASKS ./wrf.exe  || { echo "wrf.exe failed"  >&2; exit 1; }
 # Extract variables
 eval "$(conda shell.bash hook)"
 conda activate dyndown
